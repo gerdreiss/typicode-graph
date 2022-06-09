@@ -2,9 +2,7 @@
 on:
   workflow_dispatch:
   schedule:
-    # At 09:00 on day-of-month 1 and 15 
-    # https://crontab.guru/#0_9_1,15_*_*
-    - cron: '0 9 1,11,21 * *'
+    - cron: '0 6 1,11,21 * *'
 
 name: Launch Scala Steward
 
