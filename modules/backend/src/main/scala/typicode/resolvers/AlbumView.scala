@@ -7,8 +7,8 @@ import typicode.services.*
 
 case class AlbumView(
     title: String,
-    photos: ZQ[List[PhotoView]]
-)
+    photos: ZQ[List[PhotoView]],
+  )
 
 object AlbumView:
   case class GetAlbums(userId: UserId) extends Request[Throwable, Albums]
@@ -23,7 +23,7 @@ object AlbumView:
       _.data.map(album =>
         AlbumView(
           album.title,
-          PhotoView.resolve(album.id)
+          PhotoView.resolve(album.id),
         )
       )
     }

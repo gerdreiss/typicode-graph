@@ -7,8 +7,8 @@ import typicode.services.*
 
 case class TodoView(
     title: String,
-    completed: Boolean
-)
+    completed: Boolean,
+  )
 
 object TodoView:
   case class GetTodos(userId: UserId) extends Request[Throwable, Todos]

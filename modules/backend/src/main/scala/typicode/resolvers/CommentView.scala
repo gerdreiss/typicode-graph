@@ -8,8 +8,8 @@ import typicode.services.*
 case class CommentView(
     name: String,
     email: String,
-    body: String
-)
+    body: String,
+  )
 
 object CommentView:
   case class GetComments(postId: PostId) extends Request[Throwable, Comments]

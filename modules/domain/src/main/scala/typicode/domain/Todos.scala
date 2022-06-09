@@ -6,8 +6,8 @@ case class Todo(
     userId: UserId,
     id: PostId,
     title: String,
-    completed: Boolean
-)
+    completed: Boolean,
+  )
 
 case class Todos(data: List[Todo]) extends TypicodeData
 

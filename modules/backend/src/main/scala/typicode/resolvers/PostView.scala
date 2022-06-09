@@ -8,8 +8,8 @@ import typicode.services.*
 case class PostView(
     title: String,
     body: String,
-    comments: ZQ[List[CommentView]]
-)
+    comments: ZQ[List[CommentView]],
+  )
 
 object PostView:
   case class GetPosts(userId: UserId) extends Request[Throwable, Posts]
@@ -25,7 +25,7 @@ object PostView:
         PostView(
           post.title,
           post.body,
-          CommentView.resolve(post.id)
+          CommentView.resolve(post.id),
         )
       }
     }

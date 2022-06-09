@@ -15,8 +15,8 @@ case class UserView(
     company: Company,
     todos: ZQ[List[TodoView]],
     posts: ZQ[List[PostView]],
-    albums: ZQ[List[AlbumView]]
-)
+    albums: ZQ[List[AlbumView]],
+  )
 
 object UserView:
   def resolve(userId: UserId): ZQ[UserView] =
@@ -33,6 +33,6 @@ object UserView:
           user.company,
           TodoView.resolve(user.id),
           PostView.resolve(user.id),
-          AlbumView.resolve(user.id)
+          AlbumView.resolve(user.id),
         )
       }

@@ -4,22 +4,22 @@ import zio.json.*
 
 case class Geo(
     lat: Double,
-    lng: Double
-)
+    lng: Double,
+  )
 
 case class Address(
     street: String,
     suite: String,
     city: String,
     zipcode: String,
-    geo: Geo
-)
+    geo: Geo,
+  )
 
 case class Company(
     name: String,
     catchPhrase: String,
-    bs: String
-)
+    bs: String,
+  )
 
 case class User(
     id: UserId,
@@ -29,8 +29,8 @@ case class User(
     address: Address,
     company: Company,
     phone: String,
-    website: String
-) extends TypicodeData
+    website: String,
+  ) extends TypicodeData
 
 object User:
   given JsonDecoder[Geo]     = DeriveJsonDecoder.gen[Geo]

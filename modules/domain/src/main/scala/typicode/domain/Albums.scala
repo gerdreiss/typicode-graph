@@ -7,12 +7,12 @@ case class Photo(
     id: PhotoId,
     title: String,
     url: String,
-    thumbnailUrl: String
-)
+    thumbnailUrl: String,
+  )
 
 case class Photos(
     data: List[Photo]
-) extends TypicodeData
+  ) extends TypicodeData
 
 object Photos:
   given JsonDecoder[Photos] = DeriveJsonDecoder.gen[Photos]
@@ -21,12 +21,12 @@ object Photos:
 case class Album(
     userId: UserId,
     id: AlbumId,
-    title: String
-)
+    title: String,
+  )
 
 case class Albums(
     data: List[Album]
-) extends TypicodeData
+  ) extends TypicodeData
 
 object Albums:
   given JsonDecoder[Albums] = DeriveJsonDecoder.gen[Albums]

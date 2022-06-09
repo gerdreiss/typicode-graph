@@ -40,9 +40,12 @@ object TypicodeService:
       private def getPostCommentsURI(postId: PostId): Uri  = uri"$baseUrl/posts/$postId/comments"
       private def getAlbumPhotosURI(albumId: AlbumId): Uri = uri"$baseUrl/albums/$albumId/photos"
 
-      private def createRequest[T <: TypicodeData](uri: Uri, lastModified: Option[String] = None)(using
+      private def createRequest[T <: TypicodeData](
+          uri: Uri,
+          lastModified: Option[String] = None,
+        )(using
           D: JsonDecoder[T]
-      ): Request[Either[String, T], Any] =
+        ): Request[Either[String, T], Any] =
         val headers = lastModified.map("If-Modified-Since" -> _).foldLeft(commonHeaders)(_ + _)
         basicRequest
           .get(uri)

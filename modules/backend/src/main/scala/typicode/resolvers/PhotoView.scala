@@ -8,8 +8,8 @@ import typicode.services.*
 case class PhotoView(
     title: String,
     url: String,
-    thumbnailUrl: String
-)
+    thumbnailUrl: String,
+  )
 
 object PhotoView:
   case class GetPhotos(albumId: AlbumId) extends Request[Throwable, Photos]
