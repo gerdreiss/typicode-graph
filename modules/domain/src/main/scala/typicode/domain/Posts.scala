@@ -7,12 +7,12 @@ case class Comment(
     id: CommentId,
     name: String,
     email: String,
-    body: String
-)
+    body: String,
+  )
 
 case class Comments(
     data: List[Comment]
-) extends TypicodeData
+  ) extends TypicodeData
 
 object Comments:
   given JsonDecoder[Comments] = DeriveJsonDecoder.gen[Comments]
@@ -22,12 +22,12 @@ case class Post(
     userId: UserId,
     id: PostId,
     title: String,
-    body: String
-)
+    body: String,
+  )
 
 case class Posts(
     data: List[Post]
-) extends TypicodeData
+  ) extends TypicodeData
 
 object Posts:
   given JsonDecoder[Posts] = DeriveJsonDecoder.gen[Posts]
