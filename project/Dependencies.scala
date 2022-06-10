@@ -3,7 +3,7 @@ import sbt._
 
 object Dependencies {
   object V         {
-    val tyrian      = "0.5.0"
+    val tyrian      = "0.5.1"
     val caliban     = "2.0.0-RC2"
     val http4s      = "0.23.12"
     val sttp3       = "3.6.2"
