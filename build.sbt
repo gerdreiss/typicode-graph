@@ -39,14 +39,13 @@ lazy val backend = project
   .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
-      Libraries.`httpclient-backend-zio`.value,
+      Libraries.`sttp-client3-zio`.value,
       Libraries.caliban.value,
       Libraries.`caliban-cats`.value,
       Libraries.`caliban-http4s`.value,
       Libraries.`caliban-zio-http`.value,
       Libraries.zio.value,
       Libraries.`zio-query`.value,
-      Libraries.`http4s-blaze-server`.value,
     ),
     excludeDependencies += "org.scala-lang.modules" % "scala-collection-compat_2.13",
   )
