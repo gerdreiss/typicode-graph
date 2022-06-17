@@ -42,7 +42,6 @@ lazy val backend = project
       Libraries.`sttp-client3-zio`.value,
       Libraries.caliban.value,
       Libraries.`caliban-cats`.value,
-      Libraries.`caliban-http4s`.value,
       Libraries.`caliban-zio-http`.value,
       Libraries.zio.value,
       Libraries.`zio-query`.value,

@@ -15,7 +15,6 @@ object Dependencies {
     val caliban            = Def.setting("com.github.ghostdogpr" %%% "caliban" % V.caliban)
     val `caliban-cats`     = Def.setting("com.github.ghostdogpr" %% "caliban-cats" % V.caliban)
     val `caliban-client`   = Def.setting("com.github.ghostdogpr" %% "caliban-client" % V.caliban)
-    val `caliban-http4s`   = Def.setting("com.github.ghostdogpr" %% "caliban-http4s" % V.caliban)
     val `caliban-zio-http` = Def.setting("com.github.ghostdogpr" %% "caliban-zio-http" % V.caliban)
     val zio                = Def.setting("dev.zio" %% "zio" % V.zio)
     val `zio-query`        = Def.setting("dev.zio" %% "zio-query" % V.`zio-query`)

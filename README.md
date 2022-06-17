@@ -8,7 +8,7 @@ This is an experimental project to explore [GraphQL](https://graphql.org/) and [
 
 ### Note!
 
-Currently, running the backend of this project fails with:
+Currently, trying to execute the interpreter directly fails with:
 
 ```console
 java.lang.NoClassDefFoundError: zio/IO$
@@ -21,5 +21,17 @@ java.lang.NoClassDefFoundError: zio/IO$
         at caliban.GraphQL$$anon$7.interpreter(GraphQL.scala:244)
         at typicode.Main$.<clinit>(Main.scala:22)
         at typicode.Main.main(Main.scala)
+...
+```
+
+When uncommenting zhttp.service.Server.start(Main.main) compilation fails with:
+
+```console
+Error while emitting Main.scala
+[info] exception occurred while compiling /Users/g/Workspace/Projects/typicode-graph/modules/backend/src/main/scala/typicode/Main.scala
+java.lang.AssertionError: assertion failed while compiling /Users/g/Workspace/Projects/typicode-graph/modules/backend/src/main/scala/typicode/Main.scala
+[error] ## Exception when compiling 10 sources to /Users/g/Workspace/Projects/typicode-graph/modules/backend/target/scala-3.1.2/classes
+[error] java.lang.AssertionError: assertion failed
+[error] scala.runtime.Scala3RunTime$.assertFailed(Scala3RunTime.scala:11)
 ...
 ```
