@@ -50,5 +50,9 @@ object Main extends ZIOAppDefault:
     yield ()
 
   override def run =
-    program
-      .provide(HttpClientZioBackend.layer(), TypicodeService.live, Console.live, Clock.live)
+    program.provide(
+      ZLayer.succeed(Clock.ClockLive),
+      ZLayer.succeed(Console.ConsoleLive),
+      HttpClientZioBackend.layer(),
+      TypicodeService.live,
+    )
