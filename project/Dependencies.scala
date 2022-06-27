@@ -7,7 +7,7 @@ object Dependencies {
     val caliban     = "2.0.0-RC2"
     val sttp3       = "3.6.2"
     val zio         = "2.0.0"
-    val `zio-query` = "0.3.0-RC5"
+    val `zio-query` = "0.3.0"
     val `zio-json`  = "0.3.0-RC8"
   }
   object Libraries {
