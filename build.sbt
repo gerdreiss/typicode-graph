@@ -1,14 +1,11 @@
 import Dependencies._
 
+Global / semanticdbEnabled := true // for metals
+
 ThisBuild / scalaVersion     := "3.1.3"
 ThisBuild / version          := "0.1.0"
 ThisBuild / organization     := "pro.reiss"
 ThisBuild / organizationName := "reiss.pro"
-
-// Compile / run / fork := true
-
-Global / onChangedBuildSource := ReloadOnSourceChanges
-Global / semanticdbEnabled    := true // for metals
 
 lazy val `typicode-graph` = project
   .in(file("."))
