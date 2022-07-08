@@ -8,7 +8,7 @@ object Dependencies {
     val sttp3       = "3.6.2"
     val zio         = "2.0.0"
     val `zio-query` = "0.3.0"
-    val `zio-json`  = "0.3.0-RC9"
+    val `zio-json`  = "0.3.0-RC10"
   }
   object Libraries {
     val tyrian             = Def.setting("io.indigoengine" %%% "tyrian" % V.tyrian)
