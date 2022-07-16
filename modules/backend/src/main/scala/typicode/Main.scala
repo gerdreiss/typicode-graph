@@ -1,15 +1,16 @@
 package typicode
 
-import caliban.*
+import caliban.GraphQL
+import caliban.RootResolver
+import caliban.ZHttpAdapter
 import caliban.wrappers.Wrappers.*
 
-import sttp.client3.httpclient.zio.*
+import sttp.client3.httpclient.zio.HttpClientZioBackend
 
 import zhttp.http.*
 import zhttp.service.Server
 
 import zio.*
-
 import zio.stream.ZStream
 
 import typicode.resolvers.*
@@ -19,7 +20,7 @@ import scala.language.postfixOps
 
 object Main extends ZIOAppDefault:
   val api = GraphQL
-    .graphQL[SttpClient & TypicodeService, Queries, Unit, Unit](
+    .graphQL[TypicodeService, Queries, Unit, Unit](
       RootResolver(Queries(user => UserView.resolve(user.id)))
     ) @@
     maxFields(50) @@                // query analyzer that limit query fields
@@ -54,5 +55,5 @@ object Main extends ZIOAppDefault:
       ZLayer.succeed(Clock.ClockLive),
       ZLayer.succeed(Console.ConsoleLive),
       HttpClientZioBackend.layer(),
-      TypicodeService.live,
+      TypicodeService.live
     )
