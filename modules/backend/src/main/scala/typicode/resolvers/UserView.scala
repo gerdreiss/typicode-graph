@@ -16,23 +16,29 @@ case class UserView(
     todos: ZQ[List[TodoView]],
     posts: ZQ[List[PostView]],
     albums: ZQ[List[AlbumView]],
-  )
+)
 
 object UserView:
-  def resolve(userId: UserId): ZQ[UserView] =
+  def getUsers(username: Option[String]) =
+    ZQuery
+      .fromZIO(TypicodeService.getUsers(username))
+      .map(_.map(mapUser))
+
+  def getUser(userId: UserId): ZQ[UserView] =
     ZQuery
       .fromZIO(TypicodeService.getUser(userId))
-      .map { user =>
-        UserView(
-          user.name,
-          user.username,
-          user.email,
-          user.phone,
-          user.website,
-          user.address,
-          user.company,
-          TodoView.resolve(user.id),
-          PostView.resolve(user.id),
-          AlbumView.resolve(user.id),
-        )
-      }
+      .map(mapUser)
+
+  private def mapUser(user: User): UserView =
+    UserView(
+      user.name,
+      user.username,
+      user.email,
+      user.phone,
+      user.website,
+      user.address,
+      user.company,
+      TodoView.getUserTodos(user.id),
+      PostView.getUserPosts(user.id),
+      AlbumView.getUserAlbums(user.id),
+    )

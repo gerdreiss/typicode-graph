@@ -7,20 +7,22 @@ import zio.*
 import zio.json.JsonDecoder
 
 trait TypicodeService:
+  def getUsers(username: Option[String]): Task[List[User]]
   def getUser(userId: UserId): Task[User]
-  def getTodos(userId: UserId): Task[List[Todo]]
-  def getPosts(userId: UserId): Task[List[Post]]
-  def getComments(postId: PostId): Task[List[Comment]]
-  def getAlbums(userId: UserId): Task[List[Album]]
-  def getPhotos(albumId: AlbumId): Task[List[Photo]]
+  def getUserTodos(userId: UserId): Task[List[Todo]]
+  def getUserPosts(userId: UserId): Task[List[Post]]
+  def getPostComments(postId: PostId): Task[List[Comment]]
+  def getUserAlbums(userId: UserId): Task[List[Album]]
+  def getAlbumPhotos(albumId: AlbumId): Task[List[Photo]]
 
 object TypicodeService:
-  def getUser(userId: UserId)     = ZIO.serviceWithZIO[TypicodeService](_.getUser(userId))
-  def getTodos(userId: UserId)    = ZIO.serviceWithZIO[TypicodeService](_.getTodos(userId))
-  def getPosts(userId: UserId)    = ZIO.serviceWithZIO[TypicodeService](_.getPosts(userId))
-  def getComments(postId: PostId) = ZIO.serviceWithZIO[TypicodeService](_.getComments(postId))
-  def getAlbums(userId: UserId)   = ZIO.serviceWithZIO[TypicodeService](_.getAlbums(userId))
-  def getPhotos(albumId: AlbumId) = ZIO.serviceWithZIO[TypicodeService](_.getPhotos(albumId))
+  def getUsers(username: Option[String]) = ZIO.serviceWithZIO[TypicodeService](_.getUsers(username))
+  def getUser(userId: UserId)            = ZIO.serviceWithZIO[TypicodeService](_.getUser(userId))
+  def getUserTodos(userId: UserId)       = ZIO.serviceWithZIO[TypicodeService](_.getUserTodos(userId))
+  def getUserPosts(userId: UserId)       = ZIO.serviceWithZIO[TypicodeService](_.getUserPosts(userId))
+  def getPostComments(postId: PostId)    = ZIO.serviceWithZIO[TypicodeService](_.getPostComments(postId))
+  def getUserAlbums(userId: UserId)      = ZIO.serviceWithZIO[TypicodeService](_.getUserAlbums(userId))
+  def getAlbumPhotos(albumId: AlbumId)   = ZIO.serviceWithZIO[TypicodeService](_.getAlbumPhotos(albumId))
 
   def live: ZLayer[SttpBackend[Task, Any], Any, TypicodeService] =
     ZLayer.fromFunction(TypicodeServiceLive.apply)
@@ -30,6 +32,12 @@ case class TypicodeServiceLive(backend: SttpBackend[Task, Any]) extends Typicode
 
   // TODO get from config
   private val baseUrl = "https://jsonplaceholder.typicode.com"
+
+  private def getUsersURI(username: Option[String]): Uri =
+    uri"$baseUrl/users${queryParam(username)}"
+
+  private def queryParam(username: Option[String]): String =
+    username.map(u => s"?username=$u").getOrElse("")
 
   private def getUserURI(userId: UserId): Uri          = uri"$baseUrl/users/$userId"
   private def getUserTodosURI(userId: UserId): Uri     = uri"${getUserURI(userId)}/todos"
@@ -48,6 +56,7 @@ case class TypicodeServiceLive(backend: SttpBackend[Task, Any]) extends Typicode
 
   private def getObject[T](uri: Uri)(using D: JsonDecoder[T]): Task[T] =
     for
+      _        <- Console.printLine(s"GET $uri")
       response <- createRequest[T](uri).send(backend)
       result   <- response.code match
                     case StatusCode.Ok =>
@@ -58,20 +67,23 @@ case class TypicodeServiceLive(backend: SttpBackend[Task, Any]) extends Typicode
                       ZIO.fail(new Exception(s"Unexpected response code: $code"))
     yield result
 
+  def getUsers(username: Option[String]): Task[List[User]] =
+    getObject[List[User]](getUsersURI(username))
+
   def getUser(userId: UserId): Task[User] =
     getObject[User](getUserURI(userId))
 
-  def getTodos(userId: UserId): Task[List[Todo]] =
+  def getUserTodos(userId: UserId): Task[List[Todo]] =
     getObject[List[Todo]](getUserTodosURI(userId))
 
-  def getPosts(userId: UserId): Task[List[Post]] =
+  def getUserPosts(userId: UserId): Task[List[Post]] =
     getObject[List[Post]](getUserPostsURI(userId))
 
-  def getComments(postId: PostId): Task[List[Comment]] =
+  def getPostComments(postId: PostId): Task[List[Comment]] =
     getObject[List[Comment]](getPostCommentsURI(postId))
 
-  def getAlbums(userId: UserId): Task[List[Album]] =
+  def getUserAlbums(userId: UserId): Task[List[Album]] =
     getObject[List[Album]](getUserAlbumURI(userId))
 
-  def getPhotos(albumId: AlbumId): Task[List[Photo]] =
+  def getAlbumPhotos(albumId: AlbumId): Task[List[Photo]] =
     getObject[List[Photo]](getAlbumPhotosURI(albumId))

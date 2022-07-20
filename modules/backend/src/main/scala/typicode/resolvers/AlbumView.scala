@@ -11,19 +11,19 @@ case class AlbumView(
 )
 
 object AlbumView:
-  case class GetAlbums(userId: UserId) extends Request[Throwable, List[Album]]
+  case class GetUserAlbums(userId: UserId) extends Request[Throwable, List[Album]]
 
-  private val ds: DS[GetAlbums] =
+  private val ds: DS[GetUserAlbums] =
     DataSource.fromFunctionZIO("AlbumsDataSource") { request =>
-      TypicodeService.getAlbums(request.userId)
+      TypicodeService.getUserAlbums(request.userId)
     }
 
-  def resolve(userId: UserId): ZQ[List[AlbumView]] =
-    ZQuery.fromRequest(GetAlbums(userId))(ds).map {
+  def getUserAlbums(userId: UserId): ZQ[List[AlbumView]] =
+    ZQuery.fromRequest(GetUserAlbums(userId))(ds).map {
       _.map(album =>
         AlbumView(
           album.title,
-          PhotoView.resolve(album.id),
+          PhotoView.getAlbumPhotos(album.id),
         )
       )
     }

@@ -17,7 +17,7 @@ object Main extends ZIOAppDefault:
   val api: GraphQL[TypicodeService] =
     GraphQL
       .graphQL[TypicodeService, Queries, Unit, Unit](
-        RootResolver(Queries(user => UserView.resolve(user.id)))
+        RootResolver(Queries.make)
       ) @@
       maxFields(200) @@               // query analyzer that limit query fields
       maxDepth(50) @@                 // query analyzer that limit query depth

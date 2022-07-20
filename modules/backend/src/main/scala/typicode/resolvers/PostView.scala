@@ -12,20 +12,20 @@ case class PostView(
 )
 
 object PostView:
-  case class GetPosts(userId: UserId) extends Request[Throwable, List[Post]]
+  case class GetUserPosts(userId: UserId) extends Request[Throwable, List[Post]]
 
-  val ds: DS[GetPosts] =
+  val ds: DS[GetUserPosts] =
     DataSource.fromFunctionZIO("PostsDataSource") { request =>
-      TypicodeService.getPosts(request.userId)
+      TypicodeService.getUserPosts(request.userId)
     }
 
-  def resolve(userId: UserId): ZQ[List[PostView]] =
-    ZQuery.fromRequest(GetPosts(userId))(ds).map {
+  def getUserPosts(userId: UserId): ZQ[List[PostView]] =
+    ZQuery.fromRequest(GetUserPosts(userId))(ds).map {
       _.map { post =>
         PostView(
           post.title,
           post.body,
-          CommentView.resolve(post.id),
+          CommentView.getPostComments(post.id),
         )
       }
     }

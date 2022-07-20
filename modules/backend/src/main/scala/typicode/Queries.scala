@@ -6,35 +6,23 @@ import zio.query.*
 import typicode.domain.*
 import typicode.resolvers.*
 
-case class UserQueryArgs(id: UserId)
+case class UserQueryArgs(username: Option[String])
+case class UserIdArgs(userId: UserId)
 case class Queries(
-    @GQLDescription("Return user data")
-    user: UserQueryArgs => ZQ[UserView]
+    @GQLDescription("Return users")
+    users: UserQueryArgs => ZQ[List[UserView]],
+    @GQLDescription("Return user")
+    user: UserIdArgs => ZQ[UserView],
+    @GQLDescription("Return user todos")
+    userTodos: UserIdArgs => ZQ[List[TodoView]],
+    @GQLDescription("Return user posts")
+    userPosts: UserIdArgs => ZQ[List[PostView]],
 )
 
 object Queries:
-  val user: String =
-    """
-      |{
-      |  user(id: 1) {
-      |    name
-      |    username
-      |    email
-      |    phone
-      |    website
-      |    todos {
-      |      title
-      |      completed
-      |    }
-      |    posts {
-      |      title
-      |      body
-      |      comments {
-      |        name
-      |        email
-      |        body
-      |      }
-      |    }
-      |  }
-      |}
-      |""".stripMargin
+  val make: Queries = Queries(
+    users => UserView.getUsers(users.username),
+    user => UserView.getUser(user.userId),
+    userTodos => TodoView.getUserTodos(userTodos.userId),
+    userPosts => PostView.getUserPosts(userPosts.userId),
+  )

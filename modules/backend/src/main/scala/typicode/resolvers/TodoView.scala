@@ -8,18 +8,18 @@ import typicode.services.*
 case class TodoView(
     title: String,
     completed: Boolean,
-  )
+)
 
 object TodoView:
-  case class GetTodos(userId: UserId) extends Request[Throwable, List[Todo]]
+  case class GetUserTodos(userId: UserId) extends Request[Throwable, List[Todo]]
 
-  val ds: DS[GetTodos] =
+  val ds: DS[GetUserTodos] =
     DataSource.fromFunctionZIO("TodosDataSource") { request =>
-      TypicodeService.getTodos(request.userId)
+      TypicodeService.getUserTodos(request.userId)
     }
 
-  def resolve(userId: UserId): ZQ[List[TodoView]] =
-    ZQuery.fromRequest(GetTodos(userId))(ds).map {
+  def getUserTodos(userId: UserId): ZQ[List[TodoView]] =
+    ZQuery.fromRequest(GetUserTodos(userId))(ds).map {
       _.map { todo =>
         TodoView(todo.title, todo.completed)
       }
