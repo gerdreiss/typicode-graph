@@ -19,15 +19,25 @@ case class UserView(
 )
 
 object UserView:
+  case class GetUsers(username: Option[String]) extends Request[Throwable, List[User]]
+  case class GetUser(userId: UserId)            extends Request[Throwable, User]
+
+  val UsersDS: DS[GetUsers] =
+    DataSource.fromFunctionZIO("UsersDataSource") { request =>
+      TypicodeService.getUsers(request.username)
+    }
+  val UserDS: DS[GetUser]   =
+    DataSource.fromFunctionZIO("UserDataSource") { request =>
+      TypicodeService.getUser(request.userId)
+    }
+
   def getUsers(username: Option[String]) =
     ZQuery
-      .fromZIO(TypicodeService.getUsers(username))
+      .fromRequest(GetUsers(username))(UsersDS)
       .map(_.map(mapUser))
 
   def getUser(userId: UserId): ZQ[UserView] =
-    ZQuery
-      .fromZIO(TypicodeService.getUser(userId))
-      .map(mapUser)
+    ZQuery.fromRequest(GetUser(userId))(UserDS).map(mapUser)
 
   private def mapUser(user: User): UserView =
     UserView(
