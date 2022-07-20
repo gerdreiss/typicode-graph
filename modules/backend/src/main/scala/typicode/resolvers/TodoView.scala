@@ -11,7 +11,7 @@ case class TodoView(
   )
 
 object TodoView:
-  case class GetTodos(userId: UserId) extends Request[Throwable, Todos]
+  case class GetTodos(userId: UserId) extends Request[Throwable, List[Todo]]
 
   val ds: DS[GetTodos] =
     DataSource.fromFunctionZIO("TodosDataSource") { request =>
@@ -20,7 +20,7 @@ object TodoView:
 
   def resolve(userId: UserId): ZQ[List[TodoView]] =
     ZQuery.fromRequest(GetTodos(userId))(ds).map {
-      _.data.map { todo =>
+      _.map { todo =>
         TodoView(todo.title, todo.completed)
       }
     }

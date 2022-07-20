@@ -9,10 +9,10 @@ case class PhotoView(
     title: String,
     url: String,
     thumbnailUrl: String,
-  )
+)
 
 object PhotoView:
-  case class GetPhotos(albumId: AlbumId) extends Request[Throwable, Photos]
+  case class GetPhotos(albumId: AlbumId) extends Request[Throwable, List[Photo]]
 
   val ds: DS[GetPhotos] =
     DataSource.fromFunctionZIO("PhotosDataSource") { request =>
@@ -21,7 +21,7 @@ object PhotoView:
 
   def resolve(albumId: AlbumId): ZQ[List[PhotoView]] =
     ZQuery.fromRequest(GetPhotos(albumId))(ds).map {
-      _.data.map { photo =>
+      _.map { photo =>
         PhotoView(photo.title, photo.url, photo.thumbnailUrl)
       }
     }

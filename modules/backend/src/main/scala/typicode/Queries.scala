@@ -10,7 +10,7 @@ case class UserQueryArgs(id: UserId)
 case class Queries(
     @GQLDescription("Return user data")
     user: UserQueryArgs => ZQ[UserView]
-  )
+)
 
 object Queries:
   val user: String =

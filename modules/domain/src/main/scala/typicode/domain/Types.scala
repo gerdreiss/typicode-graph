@@ -6,5 +6,3 @@ type AlbumId   = Int
 type PhotoId   = Int
 type PostId    = Int
 type CommentId = Int
-
-trait TypicodeData

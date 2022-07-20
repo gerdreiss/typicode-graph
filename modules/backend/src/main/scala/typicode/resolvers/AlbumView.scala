@@ -8,10 +8,10 @@ import typicode.services.*
 case class AlbumView(
     title: String,
     photos: ZQ[List[PhotoView]],
-  )
+)
 
 object AlbumView:
-  case class GetAlbums(userId: UserId) extends Request[Throwable, Albums]
+  case class GetAlbums(userId: UserId) extends Request[Throwable, List[Album]]
 
   private val ds: DS[GetAlbums] =
     DataSource.fromFunctionZIO("AlbumsDataSource") { request =>
@@ -20,7 +20,7 @@ object AlbumView:
 
   def resolve(userId: UserId): ZQ[List[AlbumView]] =
     ZQuery.fromRequest(GetAlbums(userId))(ds).map {
-      _.data.map(album =>
+      _.map(album =>
         AlbumView(
           album.title,
           PhotoView.resolve(album.id),

@@ -1,21 +1,18 @@
 package typicode.services
 
 import sttp.client3.*
-import sttp.model.Uri
-import sttp.model.StatusCode
-
+import sttp.model.{ StatusCode, Uri }
+import typicode.domain.*
 import zio.*
 import zio.json.JsonDecoder
 
-import typicode.domain.*
-
 trait TypicodeService:
   def getUser(userId: UserId): Task[User]
-  def getTodos(userId: UserId): Task[Todos]
-  def getPosts(userId: UserId): Task[Posts]
-  def getComments(postId: PostId): Task[Comments]
-  def getAlbums(userId: UserId): Task[Albums]
-  def getPhotos(albumId: AlbumId): Task[Photos]
+  def getTodos(userId: UserId): Task[List[Todo]]
+  def getPosts(userId: UserId): Task[List[Post]]
+  def getComments(postId: PostId): Task[List[Comment]]
+  def getAlbums(userId: UserId): Task[List[Album]]
+  def getPhotos(albumId: AlbumId): Task[List[Photo]]
 
 object TypicodeService:
   def getUser(userId: UserId)     = ZIO.serviceWithZIO[TypicodeService](_.getUser(userId))
@@ -41,7 +38,7 @@ case class TypicodeServiceLive(backend: SttpBackend[Task, Any]) extends Typicode
   private def getPostCommentsURI(postId: PostId): Uri  = uri"$baseUrl/posts/$postId/comments"
   private def getAlbumPhotosURI(albumId: AlbumId): Uri = uri"$baseUrl/albums/$albumId/photos"
 
-  private def createRequest[T <: TypicodeData](uri: Uri, lastModified: Option[String] = None)(using
+  private def createRequest[T](uri: Uri, lastModified: Option[String] = None)(using
       D: JsonDecoder[T]
   ): Request[Either[String, T], Any] =
     basicRequest
@@ -49,7 +46,7 @@ case class TypicodeServiceLive(backend: SttpBackend[Task, Any]) extends Typicode
       .headers(lastModified.map("If-Modified-Since" -> _).foldLeft(commonHeaders)(_ + _))
       .mapResponse(_.flatMap(D.decodeJson))
 
-  private def getObject[T <: TypicodeData](uri: Uri)(using D: JsonDecoder[T]): Task[T] =
+  private def getObject[T](uri: Uri)(using D: JsonDecoder[T]): Task[T] =
     for
       response <- createRequest[T](uri).send(backend)
       result   <- response.code match
@@ -64,17 +61,17 @@ case class TypicodeServiceLive(backend: SttpBackend[Task, Any]) extends Typicode
   def getUser(userId: UserId): Task[User] =
     getObject[User](getUserURI(userId))
 
-  def getTodos(userId: UserId): Task[Todos] =
-    getObject[Todos](getUserTodosURI(userId))
+  def getTodos(userId: UserId): Task[List[Todo]] =
+    getObject[List[Todo]](getUserTodosURI(userId))
 
-  def getPosts(userId: UserId): Task[Posts] =
-    getObject[Posts](getUserPostsURI(userId))
+  def getPosts(userId: UserId): Task[List[Post]] =
+    getObject[List[Post]](getUserPostsURI(userId))
 
-  def getComments(postId: PostId): Task[Comments] =
-    getObject[Comments](getPostCommentsURI(postId))
+  def getComments(postId: PostId): Task[List[Comment]] =
+    getObject[List[Comment]](getPostCommentsURI(postId))
 
-  def getAlbums(userId: UserId): Task[Albums] =
-    getObject[Albums](getUserAlbumURI(userId))
+  def getAlbums(userId: UserId): Task[List[Album]] =
+    getObject[List[Album]](getUserAlbumURI(userId))
 
-  def getPhotos(albumId: AlbumId): Task[Photos] =
-    getObject[Photos](getAlbumPhotosURI(albumId))
+  def getPhotos(albumId: AlbumId): Task[List[Photo]] =
+    getObject[List[Photo]](getAlbumPhotosURI(albumId))
