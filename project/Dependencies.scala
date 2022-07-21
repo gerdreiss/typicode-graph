@@ -5,7 +5,7 @@ object Dependencies {
   object V         {
     val tyrian      = "0.5.1"
     val caliban     = "2.0.0"
-    val sttp3       = "3.7.0"
+    val sttp3       = "3.7.1"
     val zio         = "2.0.0"
     val `zio-query` = "0.3.0"
     val `zio-json`  = "0.3.0-RC10"
