@@ -1,0 +1,2 @@
+- Build using [SBT](https://www.scala-sbt.org/): `sbt frontend/fastOptJS`
+- Open index-dev.html in a browser to see the UI

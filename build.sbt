@@ -19,7 +19,7 @@ lazy val `typicode-graph` = project
 
 lazy val frontend = project
   .in(file("modules/frontend"))
-  .enablePlugins(ScalaJSPlugin)
+  .enablePlugins(ScalaJSPlugin, CalibanPlugin)
   .settings(commonSettings)
   .settings(
     scalaJSUseMainModuleInitializer := true,
@@ -38,6 +38,7 @@ lazy val frontend = project
       (Compile / fullLinkJS / scalaJSLinkerOutputDirectory).value.getAbsolutePath()
     },
     libraryDependencies ++= Seq(
+      Libraries.`caliban-client`.value,
       Libraries.laminar.value,
       Libraries.`scala-java-time`.value,
     ),
