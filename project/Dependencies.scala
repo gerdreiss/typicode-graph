@@ -3,15 +3,17 @@ import sbt._
 
 object Dependencies {
   object V         {
-    val tyrian      = "0.5.1"
-    val caliban     = "2.0.0"
-    val sttp3       = "3.7.1"
-    val zio         = "2.0.0"
-    val `zio-query` = "0.3.0"
-    val `zio-json`  = "0.3.0-RC10"
+    val laminar           = "0.14.2"
+    val caliban           = "2.0.0"
+    val sttp3             = "3.7.1"
+    val zio               = "2.0.0"
+    val `zio-query`       = "0.3.0"
+    val `zio-json`        = "0.3.0-RC10"
+    val `scala-java-time` = "2.4.0"
   }
   object Libraries {
-    val tyrian             = Def.setting("io.indigoengine" %%% "tyrian" % V.tyrian)
+    val laminar            = Def.setting("com.raquo" %%% "laminar" % V.laminar)
+    val `scala-java-time`  = Def.setting("io.github.cquiroz" %%% "scala-java-time" % V.`scala-java-time`)
     val caliban            = Def.setting("com.github.ghostdogpr" %%% "caliban" % V.caliban)
     val `caliban-cats`     = Def.setting("com.github.ghostdogpr" %% "caliban-cats" % V.caliban)
     val `caliban-client`   = Def.setting("com.github.ghostdogpr" %% "caliban-client" % V.caliban)

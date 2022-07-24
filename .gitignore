@@ -3,5 +3,7 @@
 .idea/
 .metals/
 .vscode/
+node_modules/
 target/
+package-lock.json
 metals.sbt

@@ -1,5 +1,10 @@
 import Dependencies._
 
+import org.scalajs.linker.interface.ModuleSplitStyle
+
+val fastLinkOutputDir = taskKey[String]("output directory for `npm run dev`")
+val fullLinkOutputDir = taskKey[String]("output directory for `npm run build`")
+
 Global / semanticdbEnabled := true // for metals
 
 ThisBuild / scalaVersion     := "3.1.3"
@@ -20,13 +25,21 @@ lazy val frontend = project
     scalaJSUseMainModuleInitializer := true,
     scalaJSLinkerConfig ~= {
       _.withModuleKind(ModuleKind.ESModule)
+        .withModuleSplitStyle(ModuleSplitStyle.SmallModulesFor(List("frontend")))
     },
-    scalaJSLinkerConfig ~= {
-      _.withSourceMap(false)
+    fastLinkOutputDir               := {
+      // Ensure that fastLinkJS has run, then return its output directory
+      (Compile / fastLinkJS).value
+      (Compile / fastLinkJS / scalaJSLinkerOutputDirectory).value.getAbsolutePath()
+    },
+    fullLinkOutputDir               := {
+      // Ensure that fullLinkJS has run, then return its output directory
+      (Compile / fullLinkJS).value
+      (Compile / fullLinkJS / scalaJSLinkerOutputDirectory).value.getAbsolutePath()
     },
     libraryDependencies ++= Seq(
-      Libraries.tyrian.value,
-      Libraries.`caliban-client`.value,
+      Libraries.laminar.value,
+      Libraries.`scala-java-time`.value,
     ),
   )
   .dependsOn(domain.js)
