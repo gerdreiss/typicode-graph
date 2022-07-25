@@ -26,10 +26,10 @@ case class User(
     name: String,
     username: String,
     email: String,
-    address: Address,
-    company: Company,
     phone: String,
     website: String,
+    address: Address,
+    company: Company,
 )
 
 object User:

@@ -39,9 +39,16 @@ lazy val frontend = project
     },
     libraryDependencies ++= Seq(
       Libraries.`caliban-client`.value,
+      Libraries.`caliban-client-laminext`.value,
       Libraries.laminar.value,
       Libraries.`scala-java-time`.value,
     ),
+    // use this to regenerate the client if necessary
+    // run `sbt backend/run` before running this task
+    // Compile / caliban / calibanSettings += calibanSetting(url("http://localhost:8088/api/graphql"))(cs =>
+    //   cs.clientName("TypicodeGraphQLClient")
+    //     .packageName("typicode.graphql.client")
+    // ),
   )
   .dependsOn(domain.js)
 
