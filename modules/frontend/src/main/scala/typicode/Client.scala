@@ -1,7 +1,10 @@
 package typicode.graphql.client
 
+import caliban.client.ArgEncoder
+import caliban.client.Argument
 import caliban.client.FieldBuilder.*
-import caliban.client.*
+import caliban.client.Operations.RootQuery
+import caliban.client.SelectionBuilder
 import caliban.client.SelectionBuilder.*
 
 object Client:
@@ -92,14 +95,18 @@ object Client:
     ): SelectionBuilder[UserView, scala.Option[List[A]]] =
       Field("albums", OptionOf(ListOf(Obj(innerSelection))))
 
-  type Queries = Operations.RootQuery
+  type Queries = RootQuery
   object Queries:
 
     /** Return users
       */
-    def users[A](username: scala.Option[String] = None)(innerSelection: SelectionBuilder[UserView, A])(using
+    def users[A](
+        username: scala.Option[String] = None
+    )(
+        innerSelection: SelectionBuilder[UserView, A]
+    )(using
         ArgEncoder[scala.Option[String]]
-    ): SelectionBuilder[Operations.RootQuery, scala.Option[List[A]]] =
+    ): SelectionBuilder[RootQuery, scala.Option[List[A]]] =
       Field(
         "users",
         OptionOf(ListOf(Obj(innerSelection))),
@@ -110,7 +117,7 @@ object Client:
       */
     def user[A](userId: Int)(
         innerSelection: SelectionBuilder[UserView, A]
-    )(using ArgEncoder[Int]): SelectionBuilder[Operations.RootQuery, scala.Option[A]] =
+    )(using ArgEncoder[Int]): SelectionBuilder[RootQuery, scala.Option[A]] =
       Field(
         "user",
         OptionOf(Obj(innerSelection)),
@@ -121,7 +128,7 @@ object Client:
       */
     def userTodos[A](userId: Int)(
         innerSelection: SelectionBuilder[TodoView, A]
-    )(using ArgEncoder[Int]): SelectionBuilder[Operations.RootQuery, scala.Option[List[A]]] =
+    )(using ArgEncoder[Int]): SelectionBuilder[RootQuery, scala.Option[List[A]]] =
       Field(
         "userTodos",
         OptionOf(ListOf(Obj(innerSelection))),
@@ -132,7 +139,7 @@ object Client:
       */
     def userPosts[A](userId: Int)(
         innerSelection: SelectionBuilder[PostView, A]
-    )(using ArgEncoder[Int]): SelectionBuilder[Operations.RootQuery, scala.Option[List[A]]] =
+    )(using ArgEncoder[Int]): SelectionBuilder[RootQuery, scala.Option[List[A]]] =
       Field(
         "userPosts",
         OptionOf(ListOf(Obj(innerSelection))),

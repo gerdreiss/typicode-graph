@@ -1,10 +1,5 @@
 import Dependencies._
 
-import org.scalajs.linker.interface.ModuleSplitStyle
-
-val fastLinkOutputDir = taskKey[String]("output directory for `npm run dev`")
-val fullLinkOutputDir = taskKey[String]("output directory for `npm run build`")
-
 Global / semanticdbEnabled := true // for metals
 
 ThisBuild / scalaVersion     := "3.1.3"
@@ -22,28 +17,17 @@ lazy val frontend = project
   .enablePlugins(ScalaJSPlugin, CalibanPlugin)
   .settings(commonSettings)
   .settings(
+    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
+    scalaJSLinkerConfig ~= { _.withSourceMap(false) },
     scalaJSUseMainModuleInitializer := true,
-    scalaJSLinkerConfig ~= {
-      _.withModuleKind(ModuleKind.ESModule)
-        .withModuleSplitStyle(ModuleSplitStyle.SmallModulesFor(List("frontend")))
-    },
-    fastLinkOutputDir               := {
-      // Ensure that fastLinkJS has run, then return its output directory
-      (Compile / fastLinkJS).value
-      (Compile / fastLinkJS / scalaJSLinkerOutputDirectory).value.getAbsolutePath()
-    },
-    fullLinkOutputDir               := {
-      // Ensure that fullLinkJS has run, then return its output directory
-      (Compile / fullLinkJS).value
-      (Compile / fullLinkJS / scalaJSLinkerOutputDirectory).value.getAbsolutePath()
-    },
     libraryDependencies ++= Seq(
+      Libraries.`sttp-client3-core`.value,
       Libraries.`caliban-client`.value,
       Libraries.`caliban-client-laminext`.value,
       Libraries.laminar.value,
       Libraries.`scala-java-time`.value,
     ),
-    // use this to regenerate the client if necessary
+    // use this to regenerate the client if changes are made to the schema
     // run `sbt backend/run` before running this task
     // Compile / caliban / calibanSettings += calibanSetting(url("http://localhost:8088/api/graphql"))(cs =>
     //   cs.clientName("TypicodeGraphQLClient")
@@ -59,7 +43,6 @@ lazy val backend = project
     libraryDependencies ++= Seq(
       Libraries.`sttp-client3-zio`.value,
       Libraries.caliban.value,
-      Libraries.`caliban-cats`.value,
       Libraries.`caliban-zio-http`.value,
       Libraries.zio.value,
       Libraries.`zio-query`.value,
