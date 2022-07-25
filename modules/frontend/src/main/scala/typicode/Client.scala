@@ -1,4 +1,4 @@
-package typicode.graphql.client
+package typicode
 
 import caliban.client.ArgEncoder
 import caliban.client.Argument
