@@ -24,11 +24,13 @@ object TypicodeService:
   def getUserAlbums(userId: UserId)      = ZIO.serviceWithZIO[TypicodeService](_.getUserAlbums(userId))
   def getAlbumPhotos(albumId: AlbumId)   = ZIO.serviceWithZIO[TypicodeService](_.getAlbumPhotos(albumId))
 
-  def live: ZLayer[TypicodeConfig & SttpBackend[Task, Any], Any, TypicodeService] =
+  val live: ZLayer[TypicodeConfig & SttpBackend[Task, Any], Any, TypicodeService] =
     ZLayer.fromFunction(TypicodeServiceLive.apply)
 
-case class TypicodeServiceLive(config: TypicodeConfig, backend: SttpBackend[Task, Any])
-    extends TypicodeService:
+case class TypicodeServiceLive(
+    config: TypicodeConfig,
+    backend: SttpBackend[Task, Any],
+) extends TypicodeService:
   private val commonHeaders = Map("Content-Type" -> "application/json")
 
   private def getUsersURI(username: Option[String]): Uri =
