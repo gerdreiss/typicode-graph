@@ -24,27 +24,25 @@ object TypicodeService:
   def getUserAlbums(userId: UserId)      = ZIO.serviceWithZIO[TypicodeService](_.getUserAlbums(userId))
   def getAlbumPhotos(albumId: AlbumId)   = ZIO.serviceWithZIO[TypicodeService](_.getAlbumPhotos(albumId))
 
-  def live: ZLayer[SttpBackend[Task, Any], Any, TypicodeService] =
+  def live: ZLayer[TypicodeConfig & SttpBackend[Task, Any], Any, TypicodeService] =
     ZLayer.fromFunction(TypicodeServiceLive.apply)
 
-case class TypicodeServiceLive(backend: SttpBackend[Task, Any]) extends TypicodeService:
+case class TypicodeServiceLive(config: TypicodeConfig, backend: SttpBackend[Task, Any])
+    extends TypicodeService:
   private val commonHeaders = Map("Content-Type" -> "application/json")
 
-  // TODO get from config
-  private val baseUrl = "https://jsonplaceholder.typicode.com"
-
   private def getUsersURI(username: Option[String]): Uri =
-    uri"$baseUrl/users${queryParam(username)}"
+    uri"${config.baseUrl}/users${queryParam(username)}"
 
   private def queryParam(username: Option[String]): String =
     username.map(u => s"?username=$u").getOrElse("")
 
-  private def getUserURI(userId: UserId): Uri          = uri"$baseUrl/users/$userId"
+  private def getUserURI(userId: UserId): Uri          = uri"${config.baseUrl}/users/$userId"
   private def getUserTodosURI(userId: UserId): Uri     = uri"${getUserURI(userId)}/todos"
   private def getUserPostsURI(userId: UserId): Uri     = uri"${getUserURI(userId)}/posts"
   private def getUserAlbumURI(userId: UserId): Uri     = uri"${getUserURI(userId)}/albums"
-  private def getPostCommentsURI(postId: PostId): Uri  = uri"$baseUrl/posts/$postId/comments"
-  private def getAlbumPhotosURI(albumId: AlbumId): Uri = uri"$baseUrl/albums/$albumId/photos"
+  private def getPostCommentsURI(postId: PostId): Uri  = uri"${config.baseUrl}/posts/$postId/comments"
+  private def getAlbumPhotosURI(albumId: AlbumId): Uri = uri"${config.baseUrl}/albums/$albumId/photos"
 
   private def createRequest[T](uri: Uri, lastModified: Option[String] = None)(using
       D: JsonDecoder[T]

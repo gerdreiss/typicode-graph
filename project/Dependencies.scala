@@ -7,6 +7,7 @@ object Dependencies {
     val caliban           = "2.0.0"
     val sttp3             = "3.7.1"
     val zio               = "2.0.0"
+    val `zio-config`      = "3.0.1"
     val `zio-query`       = "0.3.0"
     val `zio-json`        = "0.3.0-RC10"
     val `scala-java-time` = "2.4.0"
@@ -21,6 +22,8 @@ object Dependencies {
     val `sttp-client3-core`       = Def.setting("com.softwaremill.sttp.client3" %%% "core" % V.sttp3)
     val `sttp-client3-zio`        = Def.setting("com.softwaremill.sttp.client3" %%% "zio" % V.sttp3)
     val zio                       = Def.setting("dev.zio" %% "zio" % V.zio)
+    val `zio-config`              = Def.setting("dev.zio" %% "zio-config" % V.`zio-config`)
+    val `zio-config-typesafe`     = Def.setting("dev.zio" %% "zio-config-typesafe" % V.`zio-config`)
     val `zio-query`               = Def.setting("dev.zio" %% "zio-query" % V.`zio-query`)
     val `zio-json`                = Def.setting("dev.zio" %% "zio-json" % V.`zio-json`)
   }

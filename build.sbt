@@ -46,6 +46,8 @@ lazy val backend = project
       Libraries.`caliban-zio-http`.value,
       Libraries.zio.value,
       Libraries.`zio-query`.value,
+      Libraries.`zio-config`.value,
+      Libraries.`zio-config-typesafe`.value,
     ),
     excludeDependencies += "org.scala-lang.modules" % "scala-collection-compat_2.13",
   )
