@@ -8,29 +8,30 @@ import caliban.client.SelectionBuilder
 import caliban.client.SelectionBuilder.*
 import sttp.client3.*
 import typicode.domain.*
+import cats.implicits.*
 
 object Client:
 
-  type Geo
-  object Geo:
-    def lat: SelectionBuilder[Geo, Double] = Field("lat", Scalar())
-    def lng: SelectionBuilder[Geo, Double] = Field("lng", Scalar())
+  type GeoView
+  object GeoView:
+    def lat: SelectionBuilder[GeoView, Double] = Field("lat", Scalar())
+    def lng: SelectionBuilder[GeoView, Double] = Field("lng", Scalar())
 
-  type Address
-  object Address:
-    def street: SelectionBuilder[Address, String]  = Field("street", Scalar())
-    def suite: SelectionBuilder[Address, String]   = Field("suite", Scalar())
-    def city: SelectionBuilder[Address, String]    = Field("city", Scalar())
-    def zipcode: SelectionBuilder[Address, String] = Field("zipcode", Scalar())
+  type AddressView
+  object AddressView:
+    def street: SelectionBuilder[AddressView, String]  = Field("street", Scalar())
+    def suite: SelectionBuilder[AddressView, String]   = Field("suite", Scalar())
+    def city: SelectionBuilder[AddressView, String]    = Field("city", Scalar())
+    def zipcode: SelectionBuilder[AddressView, String] = Field("zipcode", Scalar())
 
-    def geo[A](innerSelection: SelectionBuilder[Geo, A]): SelectionBuilder[Address, A] =
+    def geo[A](innerSelection: SelectionBuilder[GeoView, A]): SelectionBuilder[AddressView, A] =
       Field("geo", Obj(innerSelection))
 
-  type Company
-  object Company:
-    def name: SelectionBuilder[Company, String]        = Field("name", Scalar())
-    def catchPhrase: SelectionBuilder[Company, String] = Field("catchPhrase", Scalar())
-    def bs: SelectionBuilder[Company, String]          = Field("bs", Scalar())
+  type CompanyView
+  object CompanyView:
+    def name: SelectionBuilder[CompanyView, String]        = Field("name", Scalar())
+    def catchPhrase: SelectionBuilder[CompanyView, String] = Field("catchPhrase", Scalar())
+    def bs: SelectionBuilder[CompanyView, String]          = Field("bs", Scalar())
 
   type PhotoView
   object PhotoView:
@@ -70,16 +71,17 @@ object Client:
 
   type UserView
   object UserView:
+    def id: SelectionBuilder[UserView, Int]          = Field("id", Scalar())
     def name: SelectionBuilder[UserView, String]     = Field("name", Scalar())
     def username: SelectionBuilder[UserView, String] = Field("username", Scalar())
     def email: SelectionBuilder[UserView, String]    = Field("email", Scalar())
     def phone: SelectionBuilder[UserView, String]    = Field("phone", Scalar())
     def website: SelectionBuilder[UserView, String]  = Field("website", Scalar())
 
-    def address[A](innerSelection: SelectionBuilder[Address, A]): SelectionBuilder[UserView, A] =
+    def address[A](innerSelection: SelectionBuilder[AddressView, A]): SelectionBuilder[UserView, A] =
       Field("address", Obj(innerSelection))
 
-    def company[A](innerSelection: SelectionBuilder[Company, A]): SelectionBuilder[UserView, A] =
+    def company[A](innerSelection: SelectionBuilder[CompanyView, A]): SelectionBuilder[UserView, A] =
       Field("company", Obj(innerSelection))
 
     def todos[A](
@@ -150,12 +152,16 @@ object Client:
         arguments = List(Argument("userId", userId, "Int!")),
       )
 
+    // TODO: how?
+    def users: SelectionBuilder[RootQuery, List[User]]       = ???
+    def user(userId: Int): SelectionBuilder[RootQuery, User] = ???
+
   end Queries
 
-  def getUsers(username: Option[String]) =
+  def getUsers(username: Option[String] = None) =
     import scala.concurrent.ExecutionContext.Implicits.global
     Queries
-      .users(username)(UserView.username)
+      .users
       .toRequest(uri"http://localhost:8088/users")
       .send(sttp.client3.FetchBackend())
       .map(_.body)
@@ -163,7 +169,7 @@ object Client:
   def getUser(userId: Int) =
     import scala.concurrent.ExecutionContext.Implicits.global
     Queries
-      .user(userId)(UserView.username)
+      .user(userId)
       .toRequest(uri"http://localhost:8088/user")
       .send(sttp.client3.FetchBackend())
       .map(_.body)

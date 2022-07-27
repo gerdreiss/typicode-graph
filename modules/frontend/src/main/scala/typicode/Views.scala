@@ -19,29 +19,35 @@ object Views:
   val headerVar: Var[ReactiveHtmlElement[HTMLElement]] = Var(defaultHeader)
   val usersVar: Var[List[User]]                        = Var(List.empty)
 
-  // val commandObserver = Observer[Command] {
-  //   case Command.ShowAllUsers     =>
-  //     Client
-  //       .getUsers(None)
-  //       .onComplete {
-  //         case Success(Right(users)) =>
-  //           usersVar.set(users)
-  //         case Failure(error)        =>
-  //           headerVar.set(div(cls := "content", p(error.getMessage)))
-  //           usersVar.set(List.empty)
-  //       }
-  //   case Command.ShowUser(userId) =>
-  //     Client
-  //       .getUser(userId)
-  //       .onComplete {
-  //         case Success(Right(user)) =>
-  //           headerVar.set(defaultHeader)
-  //           usersVar.set(List(user))
-  //         case Failure(error)       =>
-  //           headerVar.set(div(cls := "content", p(error.getMessage)))
-  //           usersVar.set(List.empty)
-  //       }
-  // }
+  val commandObserver = Observer[Command] {
+    case Command.ShowAllUsers     =>
+      Client
+        .getUsers(None)
+        .onComplete {
+          case Success(Right(users)) =>
+            usersVar.set(users)
+          case Success(Left(error))  =>
+            headerVar.set(div(cls := "content", p(error.getMessage)))
+            usersVar.set(List.empty)
+          case Failure(error)        =>
+            headerVar.set(div(cls := "content", p(error.getMessage)))
+            usersVar.set(List.empty)
+        }
+    case Command.ShowUser(userId) =>
+      Client
+        .getUser(userId)
+        .onComplete {
+          case Success(Right(user)) =>
+            headerVar.set(defaultHeader)
+            usersVar.set(List(user))
+          case Success(Left(error)) =>
+            headerVar.set(div(cls := "content", p(error.getMessage)))
+            usersVar.set(List.empty)
+          case Failure(error)       =>
+            headerVar.set(div(cls := "content", p(error.getMessage)))
+            usersVar.set(List.empty)
+        }
+  }
 
   def renderApp: ReactiveHtmlElement[HTMLElement] =
     div(
@@ -74,9 +80,9 @@ object Views:
         div(
           cls   := "header",
           a(user.name),
-          // onClick.mapTo(user.id) --> commandObserver.contramap[Int] { userId =>
-          //   Command.ShowUser(userId)
-          // },
+          onClick.mapTo(user.id) --> commandObserver.contramap[Int] { userId =>
+            Command.ShowUser(userId)
+          },
         ),
         div(cls := "description", i(cls := "envelope icon"), user.email),
         div(cls := "description", i(cls := "phone icon"), user.phone),
