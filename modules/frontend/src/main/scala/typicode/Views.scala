@@ -24,12 +24,16 @@ object Views:
       Client
         .getUsers
         .onComplete {
-          case Success(Right(users)) =>
+          case Success(Right(Some(users))) =>
+            headerVar.set(defaultHeader)
             usersVar.set(users)
-          case Success(Left(error))  =>
+          case Success(Right(None))        =>
+            headerVar.set(div(cls := "content", p("No users returned")))
+            usersVar.set(List.empty)
+          case Success(Left(error))        =>
             headerVar.set(div(cls := "content", p(error.getMessage)))
             usersVar.set(List.empty)
-          case Failure(error)        =>
+          case Failure(error)              =>
             headerVar.set(div(cls := "content", p(error.getMessage)))
             usersVar.set(List.empty)
         }
@@ -37,13 +41,16 @@ object Views:
       Client
         .getUser(userId)
         .onComplete {
-          case Success(Right(user)) =>
+          case Success(Right(Some(user))) =>
             headerVar.set(defaultHeader)
             usersVar.set(List(user))
-          case Success(Left(error)) =>
+          case Success(Right(None))       =>
+            headerVar.set(div(cls := "content", p("No user returned")))
+            usersVar.set(List.empty)
+          case Success(Left(error))       =>
             headerVar.set(div(cls := "content", p(error.getMessage)))
             usersVar.set(List.empty)
-          case Failure(error)       =>
+          case Failure(error)             =>
             headerVar.set(div(cls := "content", p(error.getMessage)))
             usersVar.set(List.empty)
         }

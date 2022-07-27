@@ -6,6 +6,8 @@ case class Geo(
     lat: Double,
     lng: Double,
 )
+object Geo:
+  given JsonDecoder[Geo] = DeriveJsonDecoder.gen[Geo]
 
 case class Address(
     street: String,
@@ -14,12 +16,16 @@ case class Address(
     zipcode: String,
     geo: Geo,
 )
+object Address:
+  given JsonDecoder[Address] = DeriveJsonDecoder.gen[Address]
 
 case class Company(
     name: String,
     catchPhrase: String,
     bs: String,
 )
+object Company:
+  given JsonDecoder[Company] = DeriveJsonDecoder.gen[Company]
 
 case class User(
     id: UserId,
@@ -31,9 +37,5 @@ case class User(
     address: Address,
     company: Company,
 )
-
 object User:
-  given JsonDecoder[Geo]     = DeriveJsonDecoder.gen[Geo]
-  given JsonDecoder[Address] = DeriveJsonDecoder.gen[Address]
-  given JsonDecoder[Company] = DeriveJsonDecoder.gen[Company]
-  given JsonDecoder[User]    = DeriveJsonDecoder.gen[User]
+  given JsonDecoder[User] = DeriveJsonDecoder.gen[User]

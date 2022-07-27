@@ -16,6 +16,7 @@ object Client:
   object GeoView:
     def lat: SelectionBuilder[GeoView, Double] = Field("lat", Scalar())
     def lng: SelectionBuilder[GeoView, Double] = Field("lng", Scalar())
+    def geo: SelectionBuilder[GeoView, Geo]    = (lat ~ lng).mapN(Geo.apply)
 
   type AddressView
   object AddressView:
@@ -27,11 +28,16 @@ object Client:
     def geo[A](innerSelection: SelectionBuilder[GeoView, A]): SelectionBuilder[AddressView, A] =
       Field("geo", Obj(innerSelection))
 
+    def address: SelectionBuilder[AddressView, Address] =
+      (street ~ suite ~ city ~ zipcode ~ geo(GeoView.geo))
+        .mapN(Address.apply)
+
   type CompanyView
   object CompanyView:
     def name: SelectionBuilder[CompanyView, String]        = Field("name", Scalar())
     def catchPhrase: SelectionBuilder[CompanyView, String] = Field("catchPhrase", Scalar())
     def bs: SelectionBuilder[CompanyView, String]          = Field("bs", Scalar())
+    def company: SelectionBuilder[CompanyView, Company]    = (name ~ catchPhrase ~ bs).mapN(Company.apply)
 
   type TodoView
   object TodoView:
@@ -51,7 +57,7 @@ object Client:
 
     def comments[A](
         innerSelection: SelectionBuilder[CommentView, A]
-    ): SelectionBuilder[PostView, scala.Option[List[A]]] =
+    ): SelectionBuilder[PostView, Option[List[A]]] =
       Field("comments", OptionOf(ListOf(Obj(innerSelection))))
 
   type PhotoView
@@ -66,7 +72,7 @@ object Client:
 
     def photos[A](
         innerSelection: SelectionBuilder[PhotoView, A]
-    ): SelectionBuilder[AlbumView, scala.Option[List[A]]] =
+    ): SelectionBuilder[AlbumView, Option[List[A]]] =
       Field("photos", OptionOf(ListOf(Obj(innerSelection))))
 
   type UserView
@@ -90,17 +96,17 @@ object Client:
 
     def todos[A](
         innerSelection: SelectionBuilder[TodoView, A]
-    ): SelectionBuilder[UserView, scala.Option[List[A]]] =
+    ): SelectionBuilder[UserView, Option[List[A]]] =
       Field("todos", OptionOf(ListOf(Obj(innerSelection))))
 
     def posts[A](
         innerSelection: SelectionBuilder[PostView, A]
-    ): SelectionBuilder[UserView, scala.Option[List[A]]] =
+    ): SelectionBuilder[UserView, Option[List[A]]] =
       Field("posts", OptionOf(ListOf(Obj(innerSelection))))
 
     def albums[A](
         innerSelection: SelectionBuilder[AlbumView, A]
-    ): SelectionBuilder[UserView, scala.Option[List[A]]] =
+    ): SelectionBuilder[UserView, Option[List[A]]] =
       Field("albums", OptionOf(ListOf(Obj(innerSelection))))
 
   end UserView
@@ -112,14 +118,14 @@ object Client:
       */
     def users[A](
         innerSelection: SelectionBuilder[UserView, A]
-    ): SelectionBuilder[RootQuery, scala.Option[List[A]]] =
+    ): SelectionBuilder[RootQuery, Option[List[A]]] =
       Field("users", OptionOf(ListOf(Obj(innerSelection))))
 
     /** Return user
       */
     def user[A](userId: Int)(
         innerSelection: SelectionBuilder[UserView, A]
-    )(using ArgEncoder[Int]): SelectionBuilder[RootQuery, scala.Option[A]] =
+    )(using ArgEncoder[Int]): SelectionBuilder[RootQuery, Option[A]] =
       Field(
         "user",
         OptionOf(Obj(innerSelection)),
@@ -130,7 +136,7 @@ object Client:
       */
     def userTodos[A](userId: Int)(
         innerSelection: SelectionBuilder[TodoView, A]
-    )(using ArgEncoder[Int]): SelectionBuilder[RootQuery, scala.Option[List[A]]] =
+    )(using ArgEncoder[Int]): SelectionBuilder[RootQuery, Option[List[A]]] =
       Field(
         "userTodos",
         OptionOf(ListOf(Obj(innerSelection))),
@@ -141,32 +147,52 @@ object Client:
       */
     def userPosts[A](userId: Int)(
         innerSelection: SelectionBuilder[PostView, A]
-    )(using ArgEncoder[Int]): SelectionBuilder[RootQuery, scala.Option[List[A]]] =
+    )(using ArgEncoder[Int]): SelectionBuilder[RootQuery, Option[List[A]]] =
       Field(
         "userPosts",
         OptionOf(ListOf(Obj(innerSelection))),
         arguments = List(Argument("userId", userId, "Int!")),
       )
 
-    // TODO: how?
-    def getUsers: SelectionBuilder[RootQuery, List[User]]       = ???
-    def getUser(userId: Int): SelectionBuilder[RootQuery, User] = ???
+    def getUsers: SelectionBuilder[RootQuery, Option[List[User]]] =
+      users({
+        UserView.id ~
+          UserView.name ~
+          UserView.username ~
+          UserView.email ~
+          UserView.phone ~
+          UserView.website ~
+          UserView.address(AddressView.address) ~
+          UserView.company(CompanyView.company)
+      }.mapN(User.apply))
+
+    def getUser(userId: Int): SelectionBuilder[RootQuery, Option[User]] =
+      user(userId)({
+        UserView.id ~
+          UserView.name ~
+          UserView.username ~
+          UserView.email ~
+          UserView.phone ~
+          UserView.website ~
+          UserView.address(AddressView.address) ~
+          UserView.company(CompanyView.company)
+      }.mapN(User.apply))
 
   end Queries
 
-  import scala.concurrent.ExecutionContext.Implicits.global
+  import concurrent.ExecutionContext.Implicits.global
 
   def getUsers =
     Queries
       .getUsers
-      .toRequest(uri"http://localhost:8088/users")
+      .toRequest(uri"http://localhost:8088/api/graphql")
       .send(sttp.client3.FetchBackend())
       .map(_.body)
 
   def getUser(userId: Int) =
     Queries
       .getUser(userId)
-      .toRequest(uri"http://localhost:8088/user")
+      .toRequest(uri"http://localhost:8088/users/$userId")
       .send(sttp.client3.FetchBackend())
       .map(_.body)
 
