@@ -17,8 +17,10 @@ lazy val frontend = project
   .enablePlugins(ScalaJSPlugin, CalibanPlugin)
   .settings(commonSettings)
   .settings(
-    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
-    scalaJSLinkerConfig ~= { _.withSourceMap(false) },
+    scalaJSLinkerConfig ~= {
+      _.withModuleKind(ModuleKind.ESModule)
+        .withSourceMap(false)
+    },
     scalaJSUseMainModuleInitializer := true,
     libraryDependencies ++= Seq(
       Libraries.`sttp-client3-core`.value,

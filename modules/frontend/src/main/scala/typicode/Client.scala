@@ -2,13 +2,18 @@ package typicode
 
 import caliban.client.ArgEncoder
 import caliban.client.Argument
-import caliban.client.FieldBuilder.*
+import caliban.client.CalibanClientError
+import caliban.client.FieldBuilder.ListOf
+import caliban.client.FieldBuilder.Obj
+import caliban.client.FieldBuilder.OptionOf
+import caliban.client.FieldBuilder.Scalar
 import caliban.client.Operations.RootQuery
 import caliban.client.SelectionBuilder
-import caliban.client.SelectionBuilder.*
+import caliban.client.SelectionBuilder.Field
 import sttp.client3.*
 import typicode.domain.*
-import cats.implicits.*
+
+import scala.concurrent.Future
 
 object Client:
 
@@ -182,18 +187,18 @@ object Client:
 
   import concurrent.ExecutionContext.Implicits.global
 
-  def getUsers =
+  def getUsers: Future[Either[CalibanClientError, Option[List[User]]]] =
     Queries
       .getUsers
       .toRequest(uri"http://localhost:8088/api/graphql")
-      .send(sttp.client3.FetchBackend())
+      .send(FetchBackend())
       .map(_.body)
 
-  def getUser(userId: Int) =
+  def getUser(userId: Int): Future[Either[CalibanClientError, Option[User]]] =
     Queries
       .getUser(userId)
       .toRequest(uri"http://localhost:8088/users/$userId")
-      .send(sttp.client3.FetchBackend())
+      .send(FetchBackend())
       .map(_.body)
 
 end Client

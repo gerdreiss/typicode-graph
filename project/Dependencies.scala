@@ -25,6 +25,6 @@ object Dependencies {
     val `zio-config`              = Def.setting("dev.zio" %% "zio-config" % V.`zio-config`)
     val `zio-config-typesafe`     = Def.setting("dev.zio" %% "zio-config-typesafe" % V.`zio-config`)
     val `zio-query`               = Def.setting("dev.zio" %% "zio-query" % V.`zio-query`)
-    val `zio-json`                = Def.setting("dev.zio" %% "zio-json" % V.`zio-json`)
+    val `zio-json`                = Def.setting("dev.zio" %%% "zio-json" % V.`zio-json`)
   }
 }

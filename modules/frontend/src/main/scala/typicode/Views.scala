@@ -66,6 +66,9 @@ object Views:
       ),
       div(cls := "ui divider"),
       children <-- usersVar.signal.map(renderUserList),
+      onMountCallback { ctx =>
+        commandObserver.onNext(Command.ShowAllUsers)
+      },
     )
 
   def renderUserList(users: List[User]): List[ReactiveHtmlElement[HTMLElement]] =
