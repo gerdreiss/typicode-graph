@@ -33,9 +33,9 @@ object Main extends ZIOAppDefault:
           .start(
             8088,
             Http.collectHttp[Request] {
-              case _ -> _ / "api" / "graphql" => ZHttpAdapter.makeHttpService(interpreter)
-              case _ -> _ / "ws" / "graphql"  => ZHttpAdapter.makeWebSocketService(interpreter)
-              case _ -> _ / "graphiql"        => Http.fromStream(ZStream.fromResource("graphiql.html"))
+              case _ -> !! / "api" / "graphql" => ZHttpAdapter.makeHttpService(interpreter)
+              case _ -> !! / "ws" / "graphql"  => ZHttpAdapter.makeWebSocketService(interpreter)
+              case _ -> !! / "graphiql"        => Http.fromStream(ZStream.fromResource("graphiql.html"))
             },
           )
           .forever

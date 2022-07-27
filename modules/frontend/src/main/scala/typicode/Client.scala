@@ -191,13 +191,15 @@ object Client:
     Queries
       .getUsers
       .toRequest(uri"http://localhost:8088/api/graphql")
+      .header("Cross-Origin-Resource-Policy", "cross-site")
       .send(FetchBackend())
       .map(_.body)
 
   def getUser(userId: Int): Future[Either[CalibanClientError, Option[User]]] =
     Queries
       .getUser(userId)
-      .toRequest(uri"http://localhost:8088/users/$userId")
+      .toRequest(uri"http://localhost:8088/api/graphql")
+      .header("Cross-Origin-Resource-Policy", "cross-site")
       .send(FetchBackend())
       .map(_.body)
 
