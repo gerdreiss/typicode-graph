@@ -7,7 +7,7 @@ import zio.*
 import zio.json.JsonDecoder
 
 trait TypicodeService:
-  def getUsers(username: Option[String]): Task[List[User]]
+  def getUsers: Task[List[User]]
   def getUser(userId: UserId): Task[User]
   def getUserTodos(userId: UserId): Task[List[Todo]]
   def getUserPosts(userId: UserId): Task[List[Post]]
@@ -16,13 +16,13 @@ trait TypicodeService:
   def getAlbumPhotos(albumId: AlbumId): Task[List[Photo]]
 
 object TypicodeService:
-  def getUsers(username: Option[String]) = ZIO.serviceWithZIO[TypicodeService](_.getUsers(username))
-  def getUser(userId: UserId)            = ZIO.serviceWithZIO[TypicodeService](_.getUser(userId))
-  def getUserTodos(userId: UserId)       = ZIO.serviceWithZIO[TypicodeService](_.getUserTodos(userId))
-  def getUserPosts(userId: UserId)       = ZIO.serviceWithZIO[TypicodeService](_.getUserPosts(userId))
-  def getPostComments(postId: PostId)    = ZIO.serviceWithZIO[TypicodeService](_.getPostComments(postId))
-  def getUserAlbums(userId: UserId)      = ZIO.serviceWithZIO[TypicodeService](_.getUserAlbums(userId))
-  def getAlbumPhotos(albumId: AlbumId)   = ZIO.serviceWithZIO[TypicodeService](_.getAlbumPhotos(albumId))
+  def getUsers                         = ZIO.serviceWithZIO[TypicodeService](_.getUsers)
+  def getUser(userId: UserId)          = ZIO.serviceWithZIO[TypicodeService](_.getUser(userId))
+  def getUserTodos(userId: UserId)     = ZIO.serviceWithZIO[TypicodeService](_.getUserTodos(userId))
+  def getUserPosts(userId: UserId)     = ZIO.serviceWithZIO[TypicodeService](_.getUserPosts(userId))
+  def getPostComments(postId: PostId)  = ZIO.serviceWithZIO[TypicodeService](_.getPostComments(postId))
+  def getUserAlbums(userId: UserId)    = ZIO.serviceWithZIO[TypicodeService](_.getUserAlbums(userId))
+  def getAlbumPhotos(albumId: AlbumId) = ZIO.serviceWithZIO[TypicodeService](_.getAlbumPhotos(albumId))
 
   val live: ZLayer[TypicodeConfig & SttpBackend[Task, Any], Any, TypicodeService] =
     ZLayer.fromFunction(TypicodeServiceLive.apply)
@@ -33,13 +33,8 @@ case class TypicodeServiceLive(
 ) extends TypicodeService:
   private val commonHeaders = Map("Content-Type" -> "application/json")
 
-  private def getUsersURI(username: Option[String]): Uri =
-    uri"${config.baseUrl}/users${queryParam(username)}"
-
-  private def queryParam(username: Option[String]): String =
-    username.map(u => s"?username=$u").getOrElse("")
-
-  private def getUserURI(userId: UserId): Uri          = uri"${config.baseUrl}/users/$userId"
+  private def getUsersURI: Uri                         = uri"${config.baseUrl}/users"
+  private def getUserURI(userId: UserId): Uri          = uri"${getUsersURI}/$userId"
   private def getUserTodosURI(userId: UserId): Uri     = uri"${getUserURI(userId)}/todos"
   private def getUserPostsURI(userId: UserId): Uri     = uri"${getUserURI(userId)}/posts"
   private def getUserAlbumURI(userId: UserId): Uri     = uri"${getUserURI(userId)}/albums"
@@ -67,8 +62,8 @@ case class TypicodeServiceLive(
                       ZIO.fail(new Exception(s"Unexpected response code: $code"))
     yield result
 
-  def getUsers(username: Option[String]): Task[List[User]] =
-    getObject[List[User]](getUsersURI(username))
+  def getUsers: Task[List[User]] =
+    getObject[List[User]](getUsersURI)
 
   def getUser(userId: UserId): Task[User] =
     getObject[User](getUserURI(userId))

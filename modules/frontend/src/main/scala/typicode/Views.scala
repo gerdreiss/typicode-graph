@@ -22,7 +22,7 @@ object Views:
   val commandObserver = Observer[Command] {
     case Command.ShowAllUsers     =>
       Client
-        .getUsers(None)
+        .getUsers
         .onComplete {
           case Success(Right(users)) =>
             usersVar.set(users)

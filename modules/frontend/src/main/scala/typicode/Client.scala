@@ -33,20 +33,10 @@ object Client:
     def catchPhrase: SelectionBuilder[CompanyView, String] = Field("catchPhrase", Scalar())
     def bs: SelectionBuilder[CompanyView, String]          = Field("bs", Scalar())
 
-  type PhotoView
-  object PhotoView:
-    def title: SelectionBuilder[PhotoView, String]        = Field("title", Scalar())
-    def url: SelectionBuilder[PhotoView, String]          = Field("url", Scalar())
-    def thumbnailUrl: SelectionBuilder[PhotoView, String] = Field("thumbnailUrl", Scalar())
-
-  type AlbumView
-  object AlbumView:
-    def title: SelectionBuilder[AlbumView, String] = Field("title", Scalar())
-
-    def photos[A](
-        innerSelection: SelectionBuilder[PhotoView, A]
-    ): SelectionBuilder[AlbumView, scala.Option[List[A]]] =
-      Field("photos", OptionOf(ListOf(Obj(innerSelection))))
+  type TodoView
+  object TodoView:
+    def title: SelectionBuilder[TodoView, String]      = Field("title", Scalar())
+    def completed: SelectionBuilder[TodoView, Boolean] = Field("completed", Scalar())
 
   type CommentView
   object CommentView:
@@ -64,10 +54,20 @@ object Client:
     ): SelectionBuilder[PostView, scala.Option[List[A]]] =
       Field("comments", OptionOf(ListOf(Obj(innerSelection))))
 
-  type TodoView
-  object TodoView:
-    def title: SelectionBuilder[TodoView, String]      = Field("title", Scalar())
-    def completed: SelectionBuilder[TodoView, Boolean] = Field("completed", Scalar())
+  type PhotoView
+  object PhotoView:
+    def title: SelectionBuilder[PhotoView, String]        = Field("title", Scalar())
+    def url: SelectionBuilder[PhotoView, String]          = Field("url", Scalar())
+    def thumbnailUrl: SelectionBuilder[PhotoView, String] = Field("thumbnailUrl", Scalar())
+
+  type AlbumView
+  object AlbumView:
+    def title: SelectionBuilder[AlbumView, String] = Field("title", Scalar())
+
+    def photos[A](
+        innerSelection: SelectionBuilder[PhotoView, A]
+    ): SelectionBuilder[AlbumView, scala.Option[List[A]]] =
+      Field("photos", OptionOf(ListOf(Obj(innerSelection))))
 
   type UserView
   object UserView:
@@ -78,10 +78,14 @@ object Client:
     def phone: SelectionBuilder[UserView, String]    = Field("phone", Scalar())
     def website: SelectionBuilder[UserView, String]  = Field("website", Scalar())
 
-    def address[A](innerSelection: SelectionBuilder[AddressView, A]): SelectionBuilder[UserView, A] =
+    def address[A](
+        innerSelection: SelectionBuilder[AddressView, A]
+    ): SelectionBuilder[UserView, A] =
       Field("address", Obj(innerSelection))
 
-    def company[A](innerSelection: SelectionBuilder[CompanyView, A]): SelectionBuilder[UserView, A] =
+    def company[A](
+        innerSelection: SelectionBuilder[CompanyView, A]
+    ): SelectionBuilder[UserView, A] =
       Field("company", Obj(innerSelection))
 
     def todos[A](
@@ -107,17 +111,9 @@ object Client:
     /** Return users
       */
     def users[A](
-        username: scala.Option[String] = None
-    )(
         innerSelection: SelectionBuilder[UserView, A]
-    )(using
-        ArgEncoder[scala.Option[String]]
     ): SelectionBuilder[RootQuery, scala.Option[List[A]]] =
-      Field(
-        "users",
-        OptionOf(ListOf(Obj(innerSelection))),
-        arguments = List(Argument("username", username, "String")),
-      )
+      Field("users", OptionOf(ListOf(Obj(innerSelection))))
 
     /** Return user
       */
@@ -153,23 +149,23 @@ object Client:
       )
 
     // TODO: how?
-    def users: SelectionBuilder[RootQuery, List[User]]       = ???
-    def user(userId: Int): SelectionBuilder[RootQuery, User] = ???
+    def getUsers: SelectionBuilder[RootQuery, List[User]]       = ???
+    def getUser(userId: Int): SelectionBuilder[RootQuery, User] = ???
 
   end Queries
 
-  def getUsers(username: Option[String] = None) =
-    import scala.concurrent.ExecutionContext.Implicits.global
+  import scala.concurrent.ExecutionContext.Implicits.global
+
+  def getUsers =
     Queries
-      .users
+      .getUsers
       .toRequest(uri"http://localhost:8088/users")
       .send(sttp.client3.FetchBackend())
       .map(_.body)
 
   def getUser(userId: Int) =
-    import scala.concurrent.ExecutionContext.Implicits.global
     Queries
-      .user(userId)
+      .getUser(userId)
       .toRequest(uri"http://localhost:8088/user")
       .send(sttp.client3.FetchBackend())
       .map(_.body)
