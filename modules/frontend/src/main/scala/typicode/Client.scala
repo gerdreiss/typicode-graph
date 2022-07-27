@@ -6,6 +6,8 @@ import caliban.client.FieldBuilder.*
 import caliban.client.Operations.RootQuery
 import caliban.client.SelectionBuilder
 import caliban.client.SelectionBuilder.*
+import sttp.client3.*
+import typicode.domain.*
 
 object Client:
 
@@ -95,6 +97,8 @@ object Client:
     ): SelectionBuilder[UserView, scala.Option[List[A]]] =
       Field("albums", OptionOf(ListOf(Obj(innerSelection))))
 
+  end UserView
+
   type Queries = RootQuery
   object Queries:
 
@@ -145,3 +149,23 @@ object Client:
         OptionOf(ListOf(Obj(innerSelection))),
         arguments = List(Argument("userId", userId, "Int!")),
       )
+
+  end Queries
+
+  def getUsers(username: Option[String]) =
+    import scala.concurrent.ExecutionContext.Implicits.global
+    Queries
+      .users(username)(UserView.username)
+      .toRequest(uri"http://localhost:8088/users")
+      .send(sttp.client3.FetchBackend())
+      .map(_.body)
+
+  def getUser(userId: Int) =
+    import scala.concurrent.ExecutionContext.Implicits.global
+    Queries
+      .user(userId)(UserView.username)
+      .toRequest(uri"http://localhost:8088/user")
+      .send(sttp.client3.FetchBackend())
+      .map(_.body)
+
+end Client
