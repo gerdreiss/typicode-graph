@@ -13,8 +13,6 @@ import caliban.client.SelectionBuilder.Field
 import sttp.client3.*
 import typicode.domain.*
 
-import scala.concurrent.Future
-
 object Client:
 
   type GeoView
@@ -114,6 +112,18 @@ object Client:
     ): SelectionBuilder[UserView, Option[List[A]]] =
       Field("albums", OptionOf(ListOf(Obj(innerSelection))))
 
+    def user: SelectionBuilder[UserView, User] =
+      (
+        id ~
+          name ~
+          username ~
+          email ~
+          phone ~
+          website ~
+          address(AddressView.address) ~
+          company(CompanyView.company)
+      ).mapN(User.apply)
+
   end UserView
 
   type Queries = RootQuery
@@ -159,48 +169,23 @@ object Client:
         arguments = List(Argument("userId", userId, "Int!")),
       )
 
-    def getUsers: SelectionBuilder[RootQuery, Option[List[User]]] =
-      users({
-        UserView.id ~
-          UserView.name ~
-          UserView.username ~
-          UserView.email ~
-          UserView.phone ~
-          UserView.website ~
-          UserView.address(AddressView.address) ~
-          UserView.company(CompanyView.company)
-      }.mapN(User.apply))
-
-    def getUser(userId: Int): SelectionBuilder[RootQuery, Option[User]] =
-      user(userId)({
-        UserView.id ~
-          UserView.name ~
-          UserView.username ~
-          UserView.email ~
-          UserView.phone ~
-          UserView.website ~
-          UserView.address(AddressView.address) ~
-          UserView.company(CompanyView.company)
-      }.mapN(User.apply))
+    def getUsers: SelectionBuilder[RootQuery, Option[List[User]]]       = users(UserView.user)
+    def getUser(userId: Int): SelectionBuilder[RootQuery, Option[User]] = user(userId)(UserView.user)
 
   end Queries
 
   import concurrent.ExecutionContext.Implicits.global
 
-  def getUsers: Future[Either[CalibanClientError, Option[List[User]]]] =
-    Queries
-      .getUsers
+  def executeSelection[A](selection: SelectionBuilder[RootQuery, Option[A]]) =
+    selection
       .toRequest(uri"http://localhost:8088/api/graphql")
-      .header("Cross-Origin-Resource-Policy", "cross-site")
       .send(FetchBackend())
       .map(_.body)
 
-  def getUser(userId: Int): Future[Either[CalibanClientError, Option[User]]] =
-    Queries
-      .getUser(userId)
-      .toRequest(uri"http://localhost:8088/api/graphql")
-      .header("Cross-Origin-Resource-Policy", "cross-site")
-      .send(FetchBackend())
-      .map(_.body)
+  def getUsers: concurrent.Future[Either[CalibanClientError, Option[List[User]]]] =
+    executeSelection(Queries.getUsers)
+
+  def getUser(userId: Int): concurrent.Future[Either[CalibanClientError, Option[User]]] =
+    executeSelection(Queries.getUser(userId))
 
 end Client
