@@ -25,15 +25,19 @@ object Views:
         .getUsers
         .onComplete {
           case Success(Right(Some(users))) =>
+            org.scalajs.dom.console.log(s"Successfully got users: $users")
             headerVar.set(defaultHeader)
             usersVar.set(users)
           case Success(Right(None))        =>
+            org.scalajs.dom.console.log("No users found")
             headerVar.set(div(cls := "content", p("No users returned")))
             usersVar.set(List.empty)
           case Success(Left(error))        =>
+            org.scalajs.dom.console.log(s"Error getting users: $error")
             headerVar.set(div(cls := "content", p(error.getMessage)))
             usersVar.set(List.empty)
           case Failure(error)              =>
+            org.scalajs.dom.console.log(s"Error getting users: $error")
             headerVar.set(div(cls := "content", p(error.getMessage)))
             usersVar.set(List.empty)
         }
@@ -66,7 +70,7 @@ object Views:
       ),
       div(cls := "ui divider"),
       children <-- usersVar.signal.map(renderUserList),
-      onMountCallback { ctx =>
+      onMountCallback { _ =>
         commandObserver.onNext(Command.ShowAllUsers)
       },
     )

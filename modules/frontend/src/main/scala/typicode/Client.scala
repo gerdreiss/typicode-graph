@@ -176,7 +176,9 @@ object Client:
 
   import concurrent.ExecutionContext.Implicits.global
 
-  def executeSelection[A](selection: SelectionBuilder[RootQuery, Option[A]]) =
+  def executeSelection[A](
+      selection: SelectionBuilder[RootQuery, Option[A]]
+  ): concurrent.Future[Either[CalibanClientError, Option[A]]] =
     selection
       .toRequest(uri"http://localhost:8088/api/graphql")
       .send(FetchBackend())
