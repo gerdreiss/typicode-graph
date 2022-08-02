@@ -4,7 +4,7 @@ import sbt._
 object Dependencies {
   object V         {
     val laminar           = "0.14.2"
-    val caliban           = "2.0.0"
+    val caliban           = "2.0.1"
     val sttp3             = "3.7.2"
     val zio               = "2.0.0"
     val `zio-config`      = "3.0.1"
