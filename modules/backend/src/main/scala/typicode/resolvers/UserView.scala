@@ -6,6 +6,7 @@ import typicode.domain.*
 import typicode.services.*
 
 case class UserView(
+    id: UserId,
     name: String,
     username: String,
     email: String,
@@ -41,6 +42,7 @@ object UserView:
 
   private def mapUser(user: User): UserView =
     UserView(
+      user.id,
       user.name,
       user.username,
       user.email,

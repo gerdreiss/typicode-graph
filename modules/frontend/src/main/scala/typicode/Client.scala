@@ -193,8 +193,11 @@ object Client:
         arguments = List(Argument("userId", userId, "Int!")),
       )
 
-    def getUsers: SelectionBuilder[RootQuery, Option[List[User]]]       = users(UserView.user)
-    def getUser(userId: Int): SelectionBuilder[RootQuery, Option[User]] = user(userId)(UserView.user)
+    def getUsers: SelectionBuilder[RootQuery, Option[List[User]]] =
+      users(UserView.user)
+
+    def getUser(userId: Int): SelectionBuilder[RootQuery, Option[User]] =
+      user(userId)(UserView.user)
 
     def allUserSelections(userId: Int): SelectionBuilder[
       RootQuery,
