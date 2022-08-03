@@ -1,15 +1,9 @@
 package typicode
 
-import caliban.client.ArgEncoder
-import caliban.client.Argument
-import caliban.client.CalibanClientError
-import caliban.client.FieldBuilder.ListOf
-import caliban.client.FieldBuilder.Obj
-import caliban.client.FieldBuilder.OptionOf
-import caliban.client.FieldBuilder.Scalar
+import caliban.client.FieldBuilder.{ ListOf, Obj, OptionOf, Scalar }
 import caliban.client.Operations.RootQuery
-import caliban.client.SelectionBuilder
 import caliban.client.SelectionBuilder.Field
+import caliban.client.{ ArgEncoder, Argument, CalibanClientError, SelectionBuilder }
 import sttp.client3.*
 import typicode.domain.*
 
@@ -19,7 +13,9 @@ object Client:
   object GeoView:
     def lat: SelectionBuilder[GeoView, Double] = Field("lat", Scalar())
     def lng: SelectionBuilder[GeoView, Double] = Field("lng", Scalar())
-    def geo: SelectionBuilder[GeoView, Geo]    = (lat ~ lng).mapN(Geo.apply)
+
+    def geo: SelectionBuilder[GeoView, Geo] =
+      (lat ~ lng).mapN(Geo.apply)
 
   type AddressView
   object AddressView:
@@ -40,21 +36,35 @@ object Client:
     def name: SelectionBuilder[CompanyView, String]        = Field("name", Scalar())
     def catchPhrase: SelectionBuilder[CompanyView, String] = Field("catchPhrase", Scalar())
     def bs: SelectionBuilder[CompanyView, String]          = Field("bs", Scalar())
-    def company: SelectionBuilder[CompanyView, Company]    = (name ~ catchPhrase ~ bs).mapN(Company.apply)
+
+    def company: SelectionBuilder[CompanyView, Company] =
+      (name ~ catchPhrase ~ bs).mapN(Company.apply)
 
   type TodoView
   object TodoView:
+    def userId: SelectionBuilder[TodoView, Int]        = Field("userId", Scalar())
+    def id: SelectionBuilder[TodoView, Int]            = Field("id", Scalar())
     def title: SelectionBuilder[TodoView, String]      = Field("title", Scalar())
     def completed: SelectionBuilder[TodoView, Boolean] = Field("completed", Scalar())
 
+    def todo: SelectionBuilder[TodoView, Todo] =
+      (userId ~ id ~ title ~ completed).mapN(Todo.apply)
+
   type CommentView
   object CommentView:
+    def postId: SelectionBuilder[CommentView, Int]   = Field("postId", Scalar())
+    def id: SelectionBuilder[CommentView, Int]       = Field("id", Scalar())
     def name: SelectionBuilder[CommentView, String]  = Field("name", Scalar())
     def email: SelectionBuilder[CommentView, String] = Field("email", Scalar())
     def body: SelectionBuilder[CommentView, String]  = Field("body", Scalar())
 
+    def comment: SelectionBuilder[CommentView, Comment] =
+      (postId ~ id ~ name ~ email ~ body).mapN(Comment.apply)
+
   type PostView
   object PostView:
+    def userId: SelectionBuilder[PostView, Int]   = Field("userId", Scalar())
+    def id: SelectionBuilder[PostView, Int]       = Field("id", Scalar())
     def title: SelectionBuilder[PostView, String] = Field("title", Scalar())
     def body: SelectionBuilder[PostView, String]  = Field("body", Scalar())
 
@@ -63,20 +73,34 @@ object Client:
     ): SelectionBuilder[PostView, Option[List[A]]] =
       Field("comments", OptionOf(ListOf(Obj(innerSelection))))
 
+    def post: SelectionBuilder[PostView, Post] =
+      (userId ~ id ~ title ~ body /* ~ comments(CommentView.comment)*/ )
+        .mapN(Post.apply)
+
   type PhotoView
   object PhotoView:
+    def userId: SelectionBuilder[PhotoView, Int]          = Field("userId", Scalar())
+    def id: SelectionBuilder[PhotoView, Int]              = Field("id", Scalar())
     def title: SelectionBuilder[PhotoView, String]        = Field("title", Scalar())
     def url: SelectionBuilder[PhotoView, String]          = Field("url", Scalar())
     def thumbnailUrl: SelectionBuilder[PhotoView, String] = Field("thumbnailUrl", Scalar())
 
+    def photo: SelectionBuilder[PhotoView, Photo] =
+      (userId ~ id ~ title ~ url ~ thumbnailUrl).mapN(Photo.apply)
+
   type AlbumView
   object AlbumView:
+    def userId: SelectionBuilder[AlbumView, Int]   = Field("userId", Scalar())
+    def id: SelectionBuilder[AlbumView, Int]       = Field("id", Scalar())
     def title: SelectionBuilder[AlbumView, String] = Field("title", Scalar())
 
     def photos[A](
         innerSelection: SelectionBuilder[PhotoView, A]
     ): SelectionBuilder[AlbumView, Option[List[A]]] =
       Field("photos", OptionOf(ListOf(Obj(innerSelection))))
+
+    def album: SelectionBuilder[AlbumView, Album] =
+      (userId ~ id ~ title).mapN(Album.apply)
 
   type UserView
   object UserView:
@@ -171,6 +195,15 @@ object Client:
 
     def getUsers: SelectionBuilder[RootQuery, Option[List[User]]]       = users(UserView.user)
     def getUser(userId: Int): SelectionBuilder[RootQuery, Option[User]] = user(userId)(UserView.user)
+
+    def allUserSelections(userId: Int): SelectionBuilder[
+      RootQuery,
+      (Option[List[User]], Option[User], Option[List[Todo]], Option[List[Post]]),
+    ] =
+      users(UserView.user) ~
+        user(userId)(UserView.user) ~
+        userTodos(userId)(TodoView.todo) ~
+        userPosts(userId)(PostView.post)
 
   end Queries
 
