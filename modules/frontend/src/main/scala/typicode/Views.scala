@@ -3,62 +3,12 @@ package typicode
 import com.raquo.laminar.api.L.*
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import org.scalajs.dom.HTMLElement
-import typicode.domain.*
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.Failure
-import scala.util.Success
-
-enum Command:
-  case ShowAllUsers
-  case ShowUser(userId: Int)
+import domain.*
+import Commands.*
+import Vars.*
 
 object Views:
-  val defaultHeader = div(cls := "content", p("Users"))
-
-  val headerVar: Var[ReactiveHtmlElement[HTMLElement]] = Var(defaultHeader)
-  val usersVar: Var[List[User]]                        = Var(List.empty)
-
-  val commandObserver = Observer[Command] {
-    case Command.ShowAllUsers     =>
-      Client
-        .getUsers
-        .onComplete {
-          case Success(Right(Some(users))) =>
-            org.scalajs.dom.console.log(s"Successfully got users: $users")
-            headerVar.set(defaultHeader)
-            usersVar.set(users)
-          case Success(Right(None))        =>
-            org.scalajs.dom.console.log("No users found")
-            headerVar.set(div(cls := "content", p("No users returned")))
-            usersVar.set(List.empty)
-          case Success(Left(error))        =>
-            org.scalajs.dom.console.log(s"Error getting users: $error")
-            headerVar.set(div(cls := "content", p(error.getMessage)))
-            usersVar.set(List.empty)
-          case Failure(error)              =>
-            org.scalajs.dom.console.log(s"Error getting users: $error")
-            headerVar.set(div(cls := "content", p(error.getMessage)))
-            usersVar.set(List.empty)
-        }
-    case Command.ShowUser(userId) =>
-      Client
-        .getUser(userId)
-        .onComplete {
-          case Success(Right(Some(user))) =>
-            headerVar.set(defaultHeader)
-            usersVar.set(List(user))
-          case Success(Right(None))       =>
-            headerVar.set(div(cls := "content", p("No user returned")))
-            usersVar.set(List.empty)
-          case Success(Left(error))       =>
-            headerVar.set(div(cls := "content", p(error.getMessage)))
-            usersVar.set(List.empty)
-          case Failure(error)             =>
-            headerVar.set(div(cls := "content", p(error.getMessage)))
-            usersVar.set(List.empty)
-        }
-  }
 
   def renderApp: ReactiveHtmlElement[HTMLElement] =
     div(
@@ -66,7 +16,7 @@ object Views:
       h1(
         cls   := "ui header",
         i(cls   := "circular users icon"),
-        div(cls := "content", "Users"),
+        div(cls := "content", child <-- headerVar.signal.map(p(_))),
       ),
       div(cls := "ui divider"),
       children <-- usersVar.signal.map(renderUserList),

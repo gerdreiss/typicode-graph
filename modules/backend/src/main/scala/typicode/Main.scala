@@ -10,7 +10,6 @@ import zhttp.service.Server
 import zio.*
 import zio.stream.ZStream
 
-import resolvers.*
 import services.*
 
 import scala.language.postfixOps
@@ -36,7 +35,10 @@ object Main extends ZIOAppDefault:
       case _ -> !! / "ws" / "graphql"  => ZHttpAdapter.makeWebSocketService(interpreter)
       case _ -> !! / "graphiql"        => Http.fromStream(ZStream.fromResource("graphiql.html"))
     } @@ cors(
-      CorsConfig(allowedOrigins = _ => true, allowedMethods = Some(Set(Method.OPTIONS, Method.POST)))
+      CorsConfig(
+        allowedOrigins = _ => true,
+        allowedMethods = Some(Set(Method.OPTIONS, Method.POST)),
+      )
     )
 
   val program: ZIO[TypicodeService, Throwable, Unit] =
