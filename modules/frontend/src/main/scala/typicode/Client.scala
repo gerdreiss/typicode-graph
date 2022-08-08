@@ -226,4 +226,10 @@ object Client:
   def getUser(userId: Int): concurrent.Future[Either[CalibanClientError, Option[User]]] =
     executeSelection(Queries.getUser(userId))
 
+  def getUserTodos(userId: Int): concurrent.Future[Either[CalibanClientError, Option[List[Todo]]]] =
+    executeSelection(Queries.userTodos(userId)(TodoView.todo))
+
+  def getUserPosts(userId: Int): concurrent.Future[Either[CalibanClientError, Option[List[Post]]]] =
+    executeSelection(Queries.userPosts(userId)(PostView.post))
+
 end Client

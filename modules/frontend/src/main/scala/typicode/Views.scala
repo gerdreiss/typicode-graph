@@ -19,7 +19,11 @@ object Views:
         div(cls := "content", child <-- headerVar.signal.map(p(_))),
       ),
       div(cls := "ui divider"),
-      children <-- usersVar.signal.map(renderUserList),
+      children <-- combinedSignals
+        .map {
+          case (users, None)   => renderUserList(users)
+          case (_, Some(user)) => renderUserDetails(user)
+        },
       onMountCallback { _ =>
         commandObserver.onNext(Command.ShowAllUsers)
       },
@@ -35,6 +39,40 @@ object Views:
         div(cls := "six wide column", renderCompanyCard(user.company)),
       )
     }
+
+  def renderUserDetails(user: User): List[ReactiveHtmlElement[HTMLElement]] =
+    div(
+      cls := "ui grid",
+      div(
+        cls := "five wide column",
+        renderUserCard(user),
+        renderAddressCard(user.address),
+        renderGeoCard(user.address.geo),
+        renderCompanyCard(user.company),
+      ),
+      div(
+        cls := "five wide column",
+        h3(cls := "ui header", div(cls := "content", i(cls := "list icon"), p("To-Do List"))),
+        div(
+          cls  := "ui relaxed divided list",
+          children <-- userTodosVar.signal.map(renderTodoList),
+          onMountCallback { _ =>
+            commandObserver.onNext(Command.ShowUserTodos(user.id))
+          },
+        ),
+      ),
+      div(
+        cls := "five wide column",
+        h3(cls := "ui header", div(cls := "content", i(cls := "edit icon"), p("Posts"))),
+        div(
+          cls  := "ui relaxed divided list",
+          children <-- userPostsVar.signal.map(renderPostList),
+          onMountCallback { _ =>
+            commandObserver.onNext(Command.ShowUserPosts(user.id))
+          },
+        ),
+      ),
+    ) :: Nil
 
   def renderUserCard(user: User): ReactiveHtmlElement[HTMLElement] =
     div(
@@ -93,3 +131,26 @@ object Views:
         br(),
       ),
     )
+
+  def renderTodoList(todos: List[Todo]): List[ReactiveHtmlElement[HTMLElement]] =
+    todos.map { todo =>
+      div(
+        cls := "item",
+        if todo.completed then i(cls := "check icon")
+        else i(cls                   := "square outline icon"),
+        div(cls := "content", div(cls := "description", todo.title)),
+      )
+    }
+
+  def renderPostList(posts: List[Post]): List[ReactiveHtmlElement[HTMLElement]] =
+    posts.map { post =>
+      div(
+        cls := "item",
+        i(cls := "edit icon"),
+        div(
+          cls := "content",
+          a(cls   := "header", a(post.title)),
+          div(cls := "description", p(post.body)),
+        ),
+      )
+    }
