@@ -199,6 +199,12 @@ object Client:
     def getUser(userId: Int): SelectionBuilder[RootQuery, Option[User]] =
       user(userId)(UserView.user)
 
+    def getUserTodos(userId: Int): SelectionBuilder[RootQuery, Option[List[Todo]]] =
+      userTodos(userId)(TodoView.todo)
+
+    def getUserPosts(userId: Int): SelectionBuilder[RootQuery, Option[List[Post]]] =
+      userPosts(userId)(PostView.post)
+
     def allUserSelections(userId: Int): SelectionBuilder[
       RootQuery,
       (Option[List[User]], Option[User], Option[List[Todo]], Option[List[Post]]),
@@ -227,9 +233,9 @@ object Client:
     executeSelection(Queries.getUser(userId))
 
   def getUserTodos(userId: Int): concurrent.Future[Either[CalibanClientError, Option[List[Todo]]]] =
-    executeSelection(Queries.userTodos(userId)(TodoView.todo))
+    executeSelection(Queries.getUserTodos(userId))
 
   def getUserPosts(userId: Int): concurrent.Future[Either[CalibanClientError, Option[List[Post]]]] =
-    executeSelection(Queries.userPosts(userId)(PostView.post))
+    executeSelection(Queries.getUserPosts(userId))
 
 end Client

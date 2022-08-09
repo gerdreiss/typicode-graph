@@ -6,6 +6,8 @@ import typicode.domain.*
 import typicode.services.*
 
 case class PostView(
+    id: PostId,
+    userId: UserId,
     title: String,
     body: String,
     comments: ZQ[List[CommentView]],
@@ -23,6 +25,8 @@ object PostView:
     ZQuery.fromRequest(GetUserPosts(userId))(ds).map {
       _.map { post =>
         PostView(
+          post.id,
+          post.userId,
           post.title,
           post.body,
           CommentView.getPostComments(post.id),

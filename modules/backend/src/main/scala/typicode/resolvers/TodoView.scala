@@ -6,6 +6,8 @@ import typicode.domain.*
 import typicode.services.*
 
 case class TodoView(
+    id: TodoId,
+    userId: UserId,
     title: String,
     completed: Boolean,
 )
@@ -21,6 +23,6 @@ object TodoView:
   def getUserTodos(userId: UserId): ZQ[List[TodoView]] =
     ZQuery.fromRequest(GetUserTodos(userId))(ds).map {
       _.map { todo =>
-        TodoView(todo.title, todo.completed)
+        TodoView(todo.id, todo.userId, todo.title, todo.completed)
       }
     }
