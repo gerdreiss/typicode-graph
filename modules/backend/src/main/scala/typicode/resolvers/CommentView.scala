@@ -14,13 +14,13 @@ case class CommentView(
 object CommentView:
   case class GetPostComments(postId: PostId) extends Request[Throwable, List[Comment]]
 
-  private val ds: DS[GetPostComments] =
+  private val PostCommentsDS: DS[GetPostComments] =
     DataSource.fromFunctionZIO("CommentsDataSource") { request =>
       TypicodeService.getPostComments(request.postId)
     }
 
   def getPostComments(postId: PostId): ZQ[List[CommentView]] =
-    ZQuery.fromRequest(GetPostComments(postId))(ds).map {
+    ZQuery.fromRequest(GetPostComments(postId))(PostCommentsDS).map {
       _.map { comment =>
         CommentView(comment.name, comment.email, comment.body)
       }

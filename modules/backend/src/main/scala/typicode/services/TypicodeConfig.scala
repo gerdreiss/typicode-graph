@@ -21,4 +21,4 @@ object TypicodeConfig:
       .to[TypicodeConfig]
       .from(properties)
 
-  val live = configLayer_(config)
+  val live: Layer[ReadError[String], TypicodeConfig] = configLayer_(config)

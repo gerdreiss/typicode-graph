@@ -16,13 +16,13 @@ case class PostView(
 object PostView:
   case class GetUserPosts(userId: UserId) extends Request[Throwable, List[Post]]
 
-  val ds: DS[GetUserPosts] =
+  private val PostsDS: DS[GetUserPosts] =
     DataSource.fromFunctionZIO("PostsDataSource") { request =>
       TypicodeService.getUserPosts(request.userId)
     }
 
   def getUserPosts(userId: UserId): ZQ[List[PostView]] =
-    ZQuery.fromRequest(GetUserPosts(userId))(ds).map {
+    ZQuery.fromRequest(GetUserPosts(userId))(PostsDS).map {
       _.map { post =>
         PostView(
           post.id,

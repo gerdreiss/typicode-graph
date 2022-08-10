@@ -15,13 +15,13 @@ case class TodoView(
 object TodoView:
   case class GetUserTodos(userId: UserId) extends Request[Throwable, List[Todo]]
 
-  val ds: DS[GetUserTodos] =
+  private val TodosDS: DS[GetUserTodos] =
     DataSource.fromFunctionZIO("TodosDataSource") { request =>
       TypicodeService.getUserTodos(request.userId)
     }
 
   def getUserTodos(userId: UserId): ZQ[List[TodoView]] =
-    ZQuery.fromRequest(GetUserTodos(userId))(ds).map {
+    ZQuery.fromRequest(GetUserTodos(userId))(TodosDS).map {
       _.map { todo =>
         TodoView(todo.id, todo.userId, todo.title, todo.completed)
       }

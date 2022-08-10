@@ -14,13 +14,13 @@ case class PhotoView(
 object PhotoView:
   case class GetAlbumPhotos(albumId: AlbumId) extends Request[Throwable, List[Photo]]
 
-  val ds: DS[GetAlbumPhotos] =
+  private val AlbumPhotosDS: DS[GetAlbumPhotos] =
     DataSource.fromFunctionZIO("PhotosDataSource") { request =>
       TypicodeService.getAlbumPhotos(request.albumId)
     }
 
   def getAlbumPhotos(albumId: AlbumId): ZQ[List[PhotoView]] =
-    ZQuery.fromRequest(GetAlbumPhotos(albumId))(ds).map {
+    ZQuery.fromRequest(GetAlbumPhotos(albumId))(AlbumPhotosDS).map {
       _.map { photo =>
         PhotoView(photo.title, photo.url, photo.thumbnailUrl)
       }
