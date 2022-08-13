@@ -1,4 +1,4 @@
-# Typicode JSONPlaceholder API Client
+# Expose Typicode JSONPlaceholder API via GraphQL
 
 This is an experimental project to explore [GraphQL](https://graphql.org/) and [Scala.js](https://www.scala-js.org/) using
 
