@@ -1,5 +1,7 @@
 # Expose Typicode JSONPlaceholder API via GraphQL
 
+[![Scala CI](https://github.com/gerdreiss/typicode-graph/actions/workflows/scala.yml/badge.svg)](https://github.com/gerdreiss/typicode-graph/actions/workflows/scala.yml)
+
 This is an experimental project to explore [GraphQL](https://graphql.org/) and [Scala.js](https://www.scala-js.org/) using
 
 - [Typicode](https://jsonplaceholder.typicode.com/) as data storage
