@@ -13,13 +13,11 @@ object Views:
   def renderApp: ReactiveHtmlElement[HTMLElement] =
     div(
       cls := "ui raised very padded container segment",
-      h1(
-        cls   := "ui header",
-        i(cls   := "circular users icon"),
-        div(cls := "content", child <-- headerVar.signal.map(p(_))),
-      ),
+      renderHeader,
       div(cls := "ui divider"),
-      children <-- combinedSignals
+      children <-- usersVar
+        .signal
+        .combineWith(userVar.signal)
         .map {
           case (users, None)   => renderUserList(users)
           case (_, Some(user)) => renderUserDetails(user)
@@ -27,6 +25,35 @@ object Views:
       onMountCallback { _ =>
         commandObserver.onNext(Command.ShowAllUsers)
       },
+    )
+
+  def renderHeader: ReactiveHtmlElement[HTMLElement] =
+    h1(
+      cls := "ui header",
+      i(cls := "circular users icon"),
+      div(
+        cls := "content",
+        div(
+          cls := "ui grid",
+          div(
+            cls := "row",
+            div(cls := "fourteen wide column", child <-- headerVar.signal.map(p(_))),
+            child <-- userVar.signal.map {
+              _.fold(div()) { _ =>
+                div(
+                  cls := "two wide column",
+                  button(
+                    cls := "ui labeled button",
+                    i(cls := "left arrow icon"),
+                    "Back",
+                    onClick.mapTo(()) --> commandObserver.contramap(_ => Command.ShowAllUsers),
+                  ),
+                )
+              }
+            },
+          ),
+        ),
+      ),
     )
 
   def renderUserList(users: List[User]): List[ReactiveHtmlElement[HTMLElement]] =

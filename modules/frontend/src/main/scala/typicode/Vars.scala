@@ -13,9 +13,6 @@ object Vars:
   val userTodosVar: Var[List[Todo]] = Var(List.empty)
   val userPostsVar: Var[List[Post]] = Var(List.empty)
 
-  val combinedSignals: Signal[(List[User], Option[User])] =
-    usersVar.signal.combineWith(userVar.signal)
-
   def updateVars(
       header: String = "Users",
       users: List[User] = List.empty,
