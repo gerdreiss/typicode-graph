@@ -38,35 +38,39 @@ object Views:
             div(cls := "fourteen wide column", child <-- headerVar.signal.map(p(_))),
             child <-- userVar.signal.combineWith(postVar.signal)
               .map {
-                case (maybeUser, None) =>
-                  maybeUser.fold(div()) { _ =>
-                    div(
-                      cls := "two wide column",
-                      button(
-                        cls := "ui labeled button",
-                        i(cls := "left arrow icon"),
-                        "Back",
-                        onClick.mapTo(()) --> commandObserver.contramap(_ => Command.ShowAllUsers),
-                      ),
-                    )
-                  }
-                case (_, maybePost)    =>
-                  maybePost.fold(div()) { post =>
-                    div(
-                      cls := "two wide column",
-                      button(
-                        cls := "ui labeled button",
-                        i(cls := "left arrow icon"),
-                        "Back",
-                        onClick.mapTo(post.userId) --> commandObserver.contramap(userId => Command.ShowUser(userId)),
-                      ),
-                    )
-                  }
+                case (maybeUser, None) => renderUserHeader(maybeUser)
+                case (_, maybePost)    => renderPostHeader(maybePost)
               },
           ),
         ),
       ),
     )
+
+  def renderUserHeader(maybeUser: Option[User]): ReactiveHtmlElement[HTMLElement] =
+    maybeUser.fold(div()) { _ =>
+      div(
+        cls := "two wide column",
+        button(
+          cls := "ui labeled button",
+          i(cls := "left arrow icon"),
+          "Back",
+          onClick.mapTo(()) --> commandObserver.contramap(_ => Command.ShowAllUsers),
+        ),
+      )
+    }
+
+  def renderPostHeader(maybePost: Option[Post]): ReactiveHtmlElement[HTMLElement] =
+    maybePost.fold(div()) { post =>
+      div(
+        cls := "two wide column",
+        button(
+          cls := "ui labeled button",
+          i(cls := "left arrow icon"),
+          "Back",
+          onClick.mapTo(post.userId) --> commandObserver.contramap(userId => Command.ShowUser(userId)),
+        ),
+      )
+    }
 
   def renderUserList(users: List[User]): List[ReactiveHtmlElement[HTMLElement]] =
     users.map { user =>
@@ -89,28 +93,8 @@ object Views:
         renderGeoCard(user.address.geo),
         renderCompanyCard(user.company),
       ),
-      div(
-        cls := "five wide column",
-        h3(cls := "ui header", div(cls := "content", i(cls := "list icon"), p("To-Do List"))),
-        div(
-          cls  := "ui relaxed divided list",
-          children <-- userTodosVar.signal.map(renderTodoList),
-          onMountCallback { _ =>
-            commandObserver.onNext(Command.ShowUserTodos(user.id))
-          },
-        ),
-      ),
-      div(
-        cls := "five wide column",
-        h3(cls := "ui header", div(cls := "content", i(cls := "edit icon"), p("Posts"))),
-        div(
-          cls  := "ui relaxed divided list",
-          children <-- userPostsVar.signal.map(renderPostList),
-          onMountCallback { _ =>
-            commandObserver.onNext(Command.ShowUserPosts(user.id))
-          },
-        ),
-      ),
+      renderTodos(user.id),
+      renderPosts(user.id),
     ) :: Nil
 
   def renderClickableUserCard(user: User): ReactiveHtmlElement[HTMLElement] =
@@ -119,7 +103,7 @@ object Views:
       div(
         cls := "content",
         div(
-          cls   := "header",
+          cls := "header",
           a(user.name),
           onClick.mapTo(user.id) --> commandObserver.contramap[Int] { userId =>
             Command.ShowUser(userId)
@@ -184,12 +168,38 @@ object Views:
       ),
     )
 
+  def renderTodos(userId: UserId): ReactiveHtmlElement[HTMLElement] =
+    div(
+      cls := "five wide column",
+      h3(cls := "ui header", div(cls := "content", i(cls := "list icon"), p("To-Do List"))),
+      div(
+        cls := "ui relaxed divided list",
+        children <-- userTodosVar.signal.map(renderTodoList),
+        onMountCallback { _ =>
+          commandObserver.onNext(Command.ShowUserTodos(userId))
+        },
+      ),
+    )
+
+  def renderPosts(userId: UserId): ReactiveHtmlElement[HTMLElement] =
+    div(
+      cls := "five wide column",
+      h3(cls := "ui header", div(cls := "content", i(cls := "edit icon"), p("Posts"))),
+      div(
+        cls := "ui relaxed divided list",
+        children <-- userPostsVar.signal.map(renderPostList),
+        onMountCallback { _ =>
+          commandObserver.onNext(Command.ShowUserPosts(userId))
+        },
+      ),
+    )
+
   def renderTodoList(todos: List[Todo]): List[ReactiveHtmlElement[HTMLElement]] =
     todos.map { todo =>
       div(
         cls := "item",
         if todo.completed then i(cls := "check icon")
-        else i(cls                   := "square outline icon"),
+        else i(cls := "square outline icon"),
         div(cls := "content", div(cls := "description", todo.title)),
       )
     }
@@ -202,7 +212,7 @@ object Views:
         div(
           cls := "content",
           a(
-            cls   := "header",
+            cls := "header",
             a(
               post.title,
               onClick.mapTo(post.id) --> commandObserver.contramap(postId => Command.ShowPost(postId)),
