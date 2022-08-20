@@ -5,7 +5,8 @@ import caliban.client.Operations.RootQuery
 import caliban.client.SelectionBuilder.Field
 import caliban.client.{ ArgEncoder, Argument, CalibanClientError, SelectionBuilder }
 import sttp.client3.*
-import typicode.domain.*
+
+import domain.*
 
 object Client:
 
@@ -162,7 +163,7 @@ object Client:
 
     /** Return user
       */
-    def user[A](userId: Int)(
+    def user[A](userId: UserId)(
         innerSelection: SelectionBuilder[UserView, A]
     )(using ArgEncoder[Int]): SelectionBuilder[RootQuery, Option[A]] =
       Field(
@@ -173,7 +174,7 @@ object Client:
 
     /** Return user todos
       */
-    def userTodos[A](userId: Int)(
+    def userTodos[A](userId: UserId)(
         innerSelection: SelectionBuilder[TodoView, A]
     )(using ArgEncoder[Int]): SelectionBuilder[RootQuery, Option[List[A]]] =
       Field(
@@ -184,7 +185,7 @@ object Client:
 
     /** Return user posts
       */
-    def userPosts[A](userId: Int)(
+    def userPosts[A](userId: UserId)(
         innerSelection: SelectionBuilder[PostView, A]
     )(using ArgEncoder[Int]): SelectionBuilder[RootQuery, Option[List[A]]] =
       Field(
@@ -193,19 +194,43 @@ object Client:
         arguments = List(Argument("userId", userId, "Int!")),
       )
 
+    def post[A](postId: PostId)(
+        innerSelection: SelectionBuilder[PostView, A]
+    )(using ArgEncoder[Int]): SelectionBuilder[RootQuery, Option[A]] =
+      Field(
+        "post",
+        OptionOf(Obj(innerSelection)),
+        arguments = List(Argument("postId", postId, "Int!")),
+      )
+
+    def postComments[A](postId: PostId)(
+        innerSelection: SelectionBuilder[CommentView, A]
+    )(using ArgEncoder[Int]): SelectionBuilder[RootQuery, Option[List[A]]] =
+      Field(
+        "postComments",
+        OptionOf(ListOf(Obj(innerSelection))),
+        arguments = List(Argument("postId", postId, "Int!")),
+      )
+
     def getUsers: SelectionBuilder[RootQuery, Option[List[User]]] =
       users(UserView.user)
 
-    def getUser(userId: Int): SelectionBuilder[RootQuery, Option[User]] =
+    def getUser(userId: UserId): SelectionBuilder[RootQuery, Option[User]] =
       user(userId)(UserView.user)
 
-    def getUserTodos(userId: Int): SelectionBuilder[RootQuery, Option[List[Todo]]] =
+    def getUserTodos(userId: UserId): SelectionBuilder[RootQuery, Option[List[Todo]]] =
       userTodos(userId)(TodoView.todo)
 
-    def getUserPosts(userId: Int): SelectionBuilder[RootQuery, Option[List[Post]]] =
+    def getUserPosts(userId: UserId): SelectionBuilder[RootQuery, Option[List[Post]]] =
       userPosts(userId)(PostView.post)
 
-    def allUserSelections(userId: Int): SelectionBuilder[
+    def getPost(postId: PostId): SelectionBuilder[RootQuery, Option[Post]] =
+      post(postId)(PostView.post)
+
+    def getPostComments(postId: PostId): SelectionBuilder[RootQuery, Option[List[Comment]]] =
+      postComments(postId)(CommentView.comment)
+
+    def allUserSelections(userId: UserId): SelectionBuilder[
       RootQuery,
       (Option[List[User]], Option[User], Option[List[Todo]], Option[List[Post]]),
     ] =
@@ -229,13 +254,21 @@ object Client:
   def getUsers: concurrent.Future[Either[CalibanClientError, Option[List[User]]]] =
     executeSelection(Queries.getUsers)
 
-  def getUser(userId: Int): concurrent.Future[Either[CalibanClientError, Option[User]]] =
+  def getUser(userId: UserId): concurrent.Future[Either[CalibanClientError, Option[User]]] =
     executeSelection(Queries.getUser(userId))
 
-  def getUserTodos(userId: Int): concurrent.Future[Either[CalibanClientError, Option[List[Todo]]]] =
+  def getUserTodos(userId: UserId): concurrent.Future[Either[CalibanClientError, Option[List[Todo]]]] =
     executeSelection(Queries.getUserTodos(userId))
 
-  def getUserPosts(userId: Int): concurrent.Future[Either[CalibanClientError, Option[List[Post]]]] =
+  def getUserPosts(userId: UserId): concurrent.Future[Either[CalibanClientError, Option[List[Post]]]] =
     executeSelection(Queries.getUserPosts(userId))
+
+  def getPost(postId: PostId): concurrent.Future[Either[CalibanClientError, Option[Post]]] =
+    executeSelection(Queries.getPost(postId))
+
+  def getPostComments(
+      postId: PostId
+  ): concurrent.Future[Either[CalibanClientError, Option[List[Comment]]]] =
+    executeSelection(Queries.getPostComments(postId))
 
 end Client

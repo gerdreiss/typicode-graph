@@ -3,22 +3,24 @@ package typicode
 import com.raquo.laminar.api.L.*
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.Failure
-import scala.util.Success
+import scala.util.{ Failure, Success }
 
 import Vars.*
+import domain.*
 
 object Commands:
 
   enum Command:
     case ShowAllUsers
-    case ShowUser(userId: Int)
-    case ShowUserTodos(userId: Int)
-    case ShowUserPosts(userId: Int)
+    case ShowUser(userId: UserId)
+    case ShowUserTodos(userId: UserId)
+    case ShowUserPosts(userId: UserId)
+    case ShowPost(postId: PostId)
+    case ShowPostComments(postId: PostId)
 
   val commandObserver: Observer[Command] =
     Observer[Command] {
-      case Command.ShowAllUsers          =>
+      case Command.ShowAllUsers             =>
         Client
           .getUsers
           .onComplete {
@@ -27,7 +29,7 @@ object Commands:
             case Success(Left(error))        => updateVars(header = error.getMessage)
             case Failure(error)              => updateVars(header = error.getMessage)
           }
-      case Command.ShowUser(userId)      =>
+      case Command.ShowUser(userId)         =>
         Client
           .getUser(userId)
           .onComplete {
@@ -36,7 +38,7 @@ object Commands:
             case Success(Left(error))       => updateVars(header = error.getMessage)
             case Failure(error)             => updateVars(header = error.getMessage)
           }
-      case Command.ShowUserTodos(userId) =>
+      case Command.ShowUserTodos(userId)    =>
         Client
           .getUserTodos(userId)
           .onComplete {
@@ -45,7 +47,7 @@ object Commands:
             case Success(Left(error))        => updateVars(header = error.getMessage)
             case Failure(error)              => updateVars(header = error.getMessage)
           }
-      case Command.ShowUserPosts(userId) =>
+      case Command.ShowUserPosts(userId)    =>
         Client
           .getUserPosts(userId)
           .onComplete {
@@ -53,5 +55,23 @@ object Commands:
             case Success(Right(None))        => userPostsVar.set(List.empty)
             case Success(Left(error))        => updateVars(header = error.getMessage)
             case Failure(error)              => updateVars(header = error.getMessage)
+          }
+      case Command.ShowPost(postId)         =>
+        Client
+          .getPost(postId)
+          .onComplete {
+            case Success(Right(Some(post))) => updateVars(header = post.title, post = Some(post))
+            case Success(Right(None))       => updateVars(header = "No post returned")
+            case Success(Left(error))       => updateVars(header = error.getMessage)
+            case Failure(error)             => updateVars(header = error.getMessage)
+          }
+      case Command.ShowPostComments(postId) =>
+        Client
+          .getPostComments(postId)
+          .onComplete {
+            case Success(Right(Some(comments))) => postCommentsVar.set(comments)
+            case Success(Right(None))           => postCommentsVar.set(List.empty)
+            case Success(Left(error))           => updateVars(header = error.getMessage)
+            case Failure(error)                 => updateVars(header = error.getMessage)
           }
     }

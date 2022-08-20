@@ -1,4 +1,5 @@
-package typicode.domain
+package typicode
+package domain
 
 import zio.json.*
 

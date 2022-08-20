@@ -1,9 +1,10 @@
-package typicode.resolvers
+package typicode
+package resolvers
 
 import zio.query.*
 
-import typicode.domain.*
-import typicode.services.*
+import domain.*
+import services.*
 
 case class TodoView(
     id: TodoId,

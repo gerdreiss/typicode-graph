@@ -3,10 +3,9 @@ package typicode
 import com.raquo.laminar.api.L.*
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import org.scalajs.dom.HTMLElement
-
-import domain.*
-import Commands.*
-import Vars.*
+import typicode.Commands.*
+import typicode.Vars.*
+import typicode.domain.*
 
 object Views:
 
@@ -38,19 +37,37 @@ object Views:
           div(
             cls := "row",
             div(cls := "fourteen wide column", child <-- headerVar.signal.map(p(_))),
-            child <-- userVar.signal.map {
-              _.fold(div()) { _ =>
-                div(
-                  cls := "two wide column",
-                  button(
-                    cls := "ui labeled button",
-                    i(cls := "left arrow icon"),
-                    "Back",
-                    onClick.mapTo(()) --> commandObserver.contramap(_ => Command.ShowAllUsers),
-                  ),
-                )
-              }
-            },
+            child <-- userVar
+              .signal
+              .combineWith(postVar.signal)
+              .map {
+                case (maybeUser, None) =>
+                  maybeUser.fold(div()) { _ =>
+                    div(
+                      cls := "two wide column",
+                      button(
+                        cls := "ui labeled button",
+                        i(cls := "left arrow icon"),
+                        "Back",
+                        onClick.mapTo(()) --> commandObserver
+                          .contramap(_ => Command.ShowAllUsers),
+                      ),
+                    )
+                  }
+                case (_, maybePost)    =>
+                  maybePost.fold(div()) { post =>
+                    div(
+                      cls := "two wide column",
+                      button(
+                        cls := "ui labeled button",
+                        i(cls := "left arrow icon"),
+                        "Back",
+                        onClick.mapTo(post.userId) --> commandObserver
+                          .contramap(userId => Command.ShowUser(userId)),
+                      ),
+                    )
+                  }
+              },
           ),
         ),
       ),
@@ -189,7 +206,13 @@ object Views:
         i(cls := "edit icon"),
         div(
           cls := "content",
-          a(cls   := "header", a(post.title)),
+          a(
+            cls   := "header",
+            a(
+              post.title,
+              onClick.mapTo(post.id) --> commandObserver.contramap(postId => Command.ShowPost(postId)),
+            ),
+          ),
           div(cls := "description", p(post.body)),
         ),
       )

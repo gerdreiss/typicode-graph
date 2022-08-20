@@ -1,18 +1,23 @@
-package typicode.services
+package typicode
+package services
 
 import sttp.client3.*
 import sttp.model.{ StatusCode, Uri }
-import typicode.domain.*
 import zio.*
 import zio.json.JsonDecoder
+
+import config.*
+import domain.*
 
 trait TypicodeService:
   def getUsers: Task[List[User]]
   def getUser(userId: UserId): Task[User]
   def getUserTodos(userId: UserId): Task[List[Todo]]
   def getUserPosts(userId: UserId): Task[List[Post]]
+  def getPost(postId: PostId): Task[Post]
   def getPostComments(postId: PostId): Task[List[Comment]]
   def getUserAlbums(userId: UserId): Task[List[Album]]
+  def getAlbum(albumId: AlbumId): Task[Album]
   def getAlbumPhotos(albumId: AlbumId): Task[List[Photo]]
 
 object TypicodeService:
@@ -20,7 +25,9 @@ object TypicodeService:
   def getUser(userId: UserId)          = ZIO.serviceWithZIO[TypicodeService](_.getUser(userId))
   def getUserTodos(userId: UserId)     = ZIO.serviceWithZIO[TypicodeService](_.getUserTodos(userId))
   def getUserPosts(userId: UserId)     = ZIO.serviceWithZIO[TypicodeService](_.getUserPosts(userId))
+  def getPost(postId: PostId)          = ZIO.serviceWithZIO[TypicodeService](_.getPost(postId))
   def getPostComments(postId: PostId)  = ZIO.serviceWithZIO[TypicodeService](_.getPostComments(postId))
+  def getAlbum(albumId: AlbumId)       = ZIO.serviceWithZIO[TypicodeService](_.getAlbum(albumId))
   def getUserAlbums(userId: UserId)    = ZIO.serviceWithZIO[TypicodeService](_.getUserAlbums(userId))
   def getAlbumPhotos(albumId: AlbumId) = ZIO.serviceWithZIO[TypicodeService](_.getAlbumPhotos(albumId))
 
@@ -37,8 +44,10 @@ case class TypicodeServiceLive(
   private def getUserURI(userId: UserId): Uri          = uri"${getUsersURI}/$userId"
   private def getUserTodosURI(userId: UserId): Uri     = uri"${getUserURI(userId)}/todos"
   private def getUserPostsURI(userId: UserId): Uri     = uri"${getUserURI(userId)}/posts"
-  private def getUserAlbumURI(userId: UserId): Uri     = uri"${getUserURI(userId)}/albums"
+  private def getUserAlbumsURI(userId: UserId): Uri    = uri"${getUserURI(userId)}/albums"
+  private def getPostURI(postId: PostId): Uri          = uri"${config.baseUrl}/posts/$postId"
   private def getPostCommentsURI(postId: PostId): Uri  = uri"${config.baseUrl}/posts/$postId/comments"
+  private def getAlbumURI(albumId: AlbumId): Uri       = uri"${config.baseUrl}/albums/$albumId"
   private def getAlbumPhotosURI(albumId: AlbumId): Uri = uri"${config.baseUrl}/albums/$albumId/photos"
 
   private def createRequest[T](uri: Uri, lastModified: Option[String] = None)(using
@@ -74,11 +83,17 @@ case class TypicodeServiceLive(
   def getUserPosts(userId: UserId): Task[List[Post]] =
     getObject[List[Post]](getUserPostsURI(userId))
 
+  def getPost(postId: PostId): Task[Post] =
+    getObject[Post](getPostURI(postId))
+
   def getPostComments(postId: PostId): Task[List[Comment]] =
     getObject[List[Comment]](getPostCommentsURI(postId))
 
   def getUserAlbums(userId: UserId): Task[List[Album]] =
-    getObject[List[Album]](getUserAlbumURI(userId))
+    getObject[List[Album]](getUserAlbumsURI(userId))
+
+  def getAlbum(albumId: AlbumId): Task[Album] =
+    getObject[Album](getAlbumURI(albumId))
 
   def getAlbumPhotos(albumId: AlbumId): Task[List[Photo]] =
     getObject[List[Photo]](getAlbumPhotosURI(albumId))

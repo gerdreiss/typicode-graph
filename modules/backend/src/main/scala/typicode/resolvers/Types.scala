@@ -1,8 +1,9 @@
-package typicode.resolvers
+package typicode
+package resolvers
 
 import zio.query.*
 
-import typicode.services.*
+import services.*
 
 type ZQ[A] = RQuery[TypicodeService, A]
 type DS[A] = DataSource[TypicodeService, A]
