@@ -3,9 +3,10 @@ package typicode
 import com.raquo.laminar.api.L.*
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import org.scalajs.dom.HTMLElement
-import typicode.Commands.*
-import typicode.Vars.*
-import typicode.domain.*
+
+import Commands.*
+import Vars.*
+import domain.*
 
 object Views:
 
@@ -14,9 +15,7 @@ object Views:
       cls := "ui raised very padded container segment",
       renderHeader,
       div(cls := "ui divider"),
-      children <-- usersVar
-        .signal
-        .combineWith(userVar.signal)
+      children <-- usersVar.signal.combineWith(userVar.signal)
         .map {
           case (users, None)   => renderUserList(users)
           case (_, Some(user)) => renderUserDetails(user)
@@ -37,9 +36,7 @@ object Views:
           div(
             cls := "row",
             div(cls := "fourteen wide column", child <-- headerVar.signal.map(p(_))),
-            child <-- userVar
-              .signal
-              .combineWith(postVar.signal)
+            child <-- userVar.signal.combineWith(postVar.signal)
               .map {
                 case (maybeUser, None) =>
                   maybeUser.fold(div()) { _ =>
@@ -49,8 +46,7 @@ object Views:
                         cls := "ui labeled button",
                         i(cls := "left arrow icon"),
                         "Back",
-                        onClick.mapTo(()) --> commandObserver
-                          .contramap(_ => Command.ShowAllUsers),
+                        onClick.mapTo(()) --> commandObserver.contramap(_ => Command.ShowAllUsers),
                       ),
                     )
                   }
@@ -62,8 +58,7 @@ object Views:
                         cls := "ui labeled button",
                         i(cls := "left arrow icon"),
                         "Back",
-                        onClick.mapTo(post.userId) --> commandObserver
-                          .contramap(userId => Command.ShowUser(userId)),
+                        onClick.mapTo(post.userId) --> commandObserver.contramap(userId => Command.ShowUser(userId)),
                       ),
                     )
                   }
