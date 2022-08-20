@@ -40,38 +40,18 @@ object Commands:
         Client
           .getUserTodos(userId)
           .onComplete {
-            case Success(Right(Some(todos))) =>
-              usersVar.set(List.empty)
-              userTodosVar.set(todos)
-            case Success(Right(None))        =>
-              usersVar.set(List.empty)
-              userTodosVar.set(List.empty)
-            case Success(Left(error))        =>
-              headerVar.set(error.getMessage)
-              usersVar.set(List.empty)
-              userTodosVar.set(List.empty)
-            case Failure(error)              =>
-              headerVar.set(error.getMessage)
-              usersVar.set(List.empty)
-              userTodosVar.set(List.empty)
+            case Success(Right(Some(todos))) => userTodosVar.set(todos)
+            case Success(Right(None))        => userTodosVar.set(List.empty)
+            case Success(Left(error))        => updateVars(header = error.getMessage)
+            case Failure(error)              => updateVars(header = error.getMessage)
           }
       case Command.ShowUserPosts(userId) =>
         Client
           .getUserPosts(userId)
           .onComplete {
-            case Success(Right(Some(posts))) =>
-              usersVar.set(List.empty)
-              userPostsVar.set(posts)
-            case Success(Right(None))        =>
-              usersVar.set(List.empty)
-              userPostsVar.set(List.empty)
-            case Success(Left(error))        =>
-              headerVar.set(error.getMessage)
-              usersVar.set(List.empty)
-              userPostsVar.set(List.empty)
-            case Failure(error)              =>
-              headerVar.set(error.getMessage)
-              usersVar.set(List.empty)
-              userPostsVar.set(List.empty)
+            case Success(Right(Some(posts))) => userPostsVar.set(posts)
+            case Success(Right(None))        => userPostsVar.set(List.empty)
+            case Success(Left(error))        => updateVars(header = error.getMessage)
+            case Failure(error)              => updateVars(header = error.getMessage)
           }
     }

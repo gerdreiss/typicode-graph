@@ -60,7 +60,7 @@ object Views:
     users.map { user =>
       div(
         cls := "ui grid",
-        div(cls := "four wide column", renderUserCard(user)),
+        div(cls := "four wide column", renderClickableUserCard(user)),
         div(cls := "three wide column", renderAddressCard(user.address)),
         div(cls := "three wide column", renderGeoCard(user.address.geo)),
         div(cls := "six wide column", renderCompanyCard(user.company)),
@@ -101,7 +101,7 @@ object Views:
       ),
     ) :: Nil
 
-  def renderUserCard(user: User): ReactiveHtmlElement[HTMLElement] =
+  def renderClickableUserCard(user: User): ReactiveHtmlElement[HTMLElement] =
     div(
       cls := "ui card",
       div(
@@ -113,6 +113,19 @@ object Views:
             Command.ShowUser(userId)
           },
         ),
+        div(cls := "description", i(cls := "envelope icon"), user.email),
+        div(cls := "description", i(cls := "phone icon"), user.phone),
+        div(cls := "description", i(cls := "globe icon"), user.website),
+        br(),
+      ),
+    )
+
+  def renderUserCard(user: User): ReactiveHtmlElement[HTMLElement] =
+    div(
+      cls := "ui card",
+      div(
+        cls := "content",
+        div(cls := "header", user.name),
         div(cls := "description", i(cls := "envelope icon"), user.email),
         div(cls := "description", i(cls := "phone icon"), user.phone),
         div(cls := "description", i(cls := "globe icon"), user.website),
