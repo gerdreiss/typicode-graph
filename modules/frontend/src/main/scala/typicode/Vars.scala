@@ -12,6 +12,7 @@ object Vars:
   val userPostsVar: Var[List[Post]]       = Var(List.empty)
   val postVar: Var[Option[Post]]          = Var(None)
   var postCommentsVar: Var[List[Comment]] = Var(List.empty)
+  val nameFilterVar: Var[String]          = Var("")
 
   def updateVars(
       header: String = "Users",
@@ -21,6 +22,7 @@ object Vars:
       userPosts: List[Post] = List.empty,
       post: Option[Post] = None,
       postComments: List[Comment] = List.empty,
+      filter: String = "",
   ): Unit =
     headerVar.set(header)
     usersVar.set(users)
@@ -29,3 +31,4 @@ object Vars:
     userPostsVar.set(userPosts)
     postVar.set(post)
     postCommentsVar.set(postComments)
+    nameFilterVar.set(filter)

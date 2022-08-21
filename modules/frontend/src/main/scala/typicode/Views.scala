@@ -16,12 +16,13 @@ object Views:
       renderHeader,
       div(cls := "ui divider"),
       children <-- usersVar.signal
+        .combineWith(nameFilterVar.signal)
         .combineWith(userVar.signal)
         .combineWith(postVar.signal)
         .map {
-          case (users, None, None)   => renderUserList(users)
-          case (_, Some(user), None) => renderUserDetails(user)
-          case (_, _, Some(post))    => renderPostDetails(post)
+          case (users, filter, None, None) => renderUserList(users, filter)
+          case (_, _, Some(user), None)    => renderUserDetails(user)
+          case (_, _, _, Some(post))       => renderPostDetails(post)
         },
       onMountCallback { _ =>
         commandObserver.onNext(Command.ShowAllUsers)
@@ -29,22 +30,43 @@ object Views:
     )
 
   def renderHeader: ReactiveHtmlElement[HTMLElement] =
-    h1(
-      cls := "ui header",
-      i(cls := "circular users icon"),
+    div(
+      cls := "ui  grid",
       div(
-        cls := "content",
-        div(
-          cls := "ui grid",
+        cls := "ten wide column",
+        h1(
+          cls := "ui header",
+          i(cls := "circular users icon"),
           div(
-            cls := "row",
-            div(cls := "fourteen wide column", child <-- headerVar.signal.map(h1(_))),
-            child <-- userVar.signal.combineWith(postVar.signal)
-              .map {
-                case (maybeUser, None) => renderBackToUsers(maybeUser)
-                case (_, maybePost)    => renderBackToUser(maybePost)
-              },
+            cls := "content",
+            child <-- headerVar.signal.map(p(_)),
           ),
+        ),
+      ),
+      div(
+        cls := "five wide column",
+        child <-- usersVar.signal
+          .combineWith(userVar.signal)
+          .combineWith(postVar.signal)
+          .map {
+            case (_, None, None)      => renderUserSearch
+            case (_, maybeUser, None) => renderBackToUsers(maybeUser)
+            case (_, _, maybePost)    => renderBackToUser(maybePost)
+          },
+      ),
+    )
+
+  def renderUserSearch: ReactiveHtmlElement[HTMLElement] =
+    div(
+      cls := "content",
+      styleAttr := "margin-top: 1em; text-align: right",
+      div(
+        cls := "ui left icon large input",
+        i(cls := "users icon"),
+        input(
+          onMountFocus,
+          placeholder := "Enter your name here",
+          onInput.mapToValue --> nameFilterVar,
         ),
       ),
     )
@@ -52,7 +74,8 @@ object Views:
   def renderBackToUsers(maybeUser: Option[User]): ReactiveHtmlElement[HTMLElement] =
     maybeUser.fold(div()) { _ =>
       div(
-        cls := "two wide column",
+        cls := "content",
+        styleAttr := "margin-top: 2em; text-align: right",
         button(
           cls := "ui labeled button",
           i(cls := "left arrow icon"),
@@ -65,7 +88,8 @@ object Views:
   def renderBackToUser(maybePost: Option[Post]): ReactiveHtmlElement[HTMLElement] =
     maybePost.fold(div()) { post =>
       div(
-        cls := "two wide column",
+        cls := "content",
+        styleAttr := "margin-top: 2em; text-align: right",
         button(
           cls := "ui labeled button",
           i(cls := "left arrow icon"),
@@ -75,16 +99,18 @@ object Views:
       )
     }
 
-  def renderUserList(users: List[User]): List[ReactiveHtmlElement[HTMLElement]] =
-    users.map { user =>
-      div(
-        cls := "ui grid",
-        div(cls := "four wide column", renderClickableUserCard(user)),
-        div(cls := "three wide column", renderAddressCard(user.address)),
-        div(cls := "three wide column", renderGeoCard(user.address.geo)),
-        div(cls := "six wide column", renderCompanyCard(user.company)),
-      )
-    }
+  def renderUserList(users: List[User], filter: String = ""): List[ReactiveHtmlElement[HTMLElement]] =
+    users
+      .filter(u => filter.isEmpty || u.name.contains(filter) || u.username.contains(filter))
+      .map { user =>
+        div(
+          cls := "ui grid",
+          div(cls := "four wide column", renderClickableUserCard(user)),
+          div(cls := "three wide column", renderAddressCard(user.address)),
+          div(cls := "three wide column", renderGeoCard(user.address.geo)),
+          div(cls := "six wide column", renderCompanyCard(user.company)),
+        )
+      }
 
   def renderClickableUserCard(user: User): ReactiveHtmlElement[HTMLElement] =
     div(
@@ -237,32 +263,30 @@ object Views:
           div(
             cls := "content",
             div(cls := "ui header", i(cls := "edit icon"), post.title),
-            div(cls := "description", post.body),
+            div(cls := "description", b(post.body)),
           ),
         ),
-        h3(cls := "ui header", "Comments"),
         div(
-          cls := "ui relaxed divided list",
+          cls := "ui comments",
+          h3(cls := "ui dividing header", "Comments"),
           children <-- postCommentsVar.signal.map(renderCommentList),
           onMountCallback { _ =>
             commandObserver.onNext(Command.ShowPostComments(post.id))
           },
         ),
-      )
+      ),
     ) :: Nil
 
   def renderCommentList(comments: List[Comment]): List[ReactiveHtmlElement[HTMLElement]] =
     comments.map { comment =>
       div(
-        cls := "item",
-        i(cls := "large comment top aligned icon"),
+        cls := "comment",
+        i(cls := "large comment top aligned icon avatar"),
         div(
           cls := "content",
-          div(cls := "header", comment.name),
-          div(cls := "meta", i(cls := "envelope icon"), comment.email),
-          br(),
-          div(cls := "description", comment.body),
-          br(),
+          a(cls := "author", comment.name),
+          div(cls := "metadata", i(cls := "envelope icon"), comment.email),
+          div(cls := "text", comment.body),
         ),
       )
     }
