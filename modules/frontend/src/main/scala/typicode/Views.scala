@@ -15,10 +15,13 @@ object Views:
       cls := "ui raised very padded container segment",
       renderHeader,
       div(cls := "ui divider"),
-      children <-- usersVar.signal.combineWith(userVar.signal)
+      children <-- usersVar.signal
+        .combineWith(userVar.signal)
+        .combineWith(postVar.signal)
         .map {
-          case (users, None)   => renderUserList(users)
-          case (_, Some(user)) => renderUserDetails(user)
+          case (users, None, None)   => renderUserList(users)
+          case (_, Some(user), None) => renderUserDetails(user)
+          case (_, _, Some(post))    => renderPostDetails(post)
         },
       onMountCallback { _ =>
         commandObserver.onNext(Command.ShowAllUsers)
@@ -83,20 +86,6 @@ object Views:
       )
     }
 
-  def renderUserDetails(user: User): List[ReactiveHtmlElement[HTMLElement]] =
-    div(
-      cls := "ui grid",
-      div(
-        cls := "five wide column",
-        renderUserCard(user),
-        renderAddressCard(user.address),
-        renderGeoCard(user.address.geo),
-        renderCompanyCard(user.company),
-      ),
-      renderTodos(user.id),
-      renderPosts(user.id),
-    ) :: Nil
-
   def renderClickableUserCard(user: User): ReactiveHtmlElement[HTMLElement] =
     div(
       cls := "ui card",
@@ -115,6 +104,20 @@ object Views:
         br(),
       ),
     )
+
+  def renderUserDetails(user: User): List[ReactiveHtmlElement[HTMLElement]] =
+    div(
+      cls := "ui grid",
+      div(
+        cls := "five wide column",
+        renderUserCard(user),
+        renderAddressCard(user.address),
+        renderGeoCard(user.address.geo),
+        renderCompanyCard(user.company),
+      ),
+      renderTodos(user.id),
+      renderPosts(user.id),
+    ) :: Nil
 
   def renderUserCard(user: User): ReactiveHtmlElement[HTMLElement] =
     div(
@@ -181,6 +184,16 @@ object Views:
       ),
     )
 
+  def renderTodoList(todos: List[Todo]): List[ReactiveHtmlElement[HTMLElement]] =
+    todos.map { todo =>
+      div(
+        cls := "item",
+        if todo.completed then i(cls := "check icon")
+        else i(cls := "square outline icon"),
+        div(cls := "content", div(cls := "description", todo.title)),
+      )
+    }
+
   def renderPosts(userId: UserId): ReactiveHtmlElement[HTMLElement] =
     div(
       cls := "five wide column",
@@ -193,16 +206,6 @@ object Views:
         },
       ),
     )
-
-  def renderTodoList(todos: List[Todo]): List[ReactiveHtmlElement[HTMLElement]] =
-    todos.map { todo =>
-      div(
-        cls := "item",
-        if todo.completed then i(cls := "check icon")
-        else i(cls := "square outline icon"),
-        div(cls := "content", div(cls := "description", todo.title)),
-      )
-    }
 
   def renderPostList(posts: List[Post]): List[ReactiveHtmlElement[HTMLElement]] =
     posts.map { post =>
@@ -219,6 +222,47 @@ object Views:
             ),
           ),
           div(cls := "description", p(post.body)),
+        ),
+      )
+    }
+
+  def renderPostDetails(post: Post): List[ReactiveHtmlElement[HTMLElement]] =
+    div(
+      cls := "ui grid",
+      div(
+        cls := "sixteen wide column",
+        div(
+          cls := "ui card",
+          styleAttr := "width: 100%",
+          div(
+            cls := "content",
+            div(cls := "ui header", i(cls := "edit icon"), post.title),
+            div(cls := "description", post.body),
+          ),
+        ),
+        h3(cls := "ui header", "Comments"),
+        div(
+          cls := "ui relaxed divided list",
+          children <-- postCommentsVar.signal.map(renderCommentList),
+          onMountCallback { _ =>
+            commandObserver.onNext(Command.ShowPostComments(post.id))
+          },
+        ),
+      )
+    ) :: Nil
+
+  def renderCommentList(comments: List[Comment]): List[ReactiveHtmlElement[HTMLElement]] =
+    comments.map { comment =>
+      div(
+        cls := "item",
+        i(cls := "large comment top aligned icon"),
+        div(
+          cls := "content",
+          div(cls := "header", comment.name),
+          div(cls := "meta", i(cls := "envelope icon"), comment.email),
+          br(),
+          div(cls := "description", comment.body),
+          br(),
         ),
       )
     }

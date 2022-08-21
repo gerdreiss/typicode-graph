@@ -7,6 +7,8 @@ import domain.*
 import services.*
 
 case class CommentView(
+    postId: PostId,
+    id: CommentId,
     name: String,
     email: String,
     body: String,
@@ -23,6 +25,6 @@ object CommentView:
   def getPostComments(postId: PostId): ZQ[List[CommentView]] =
     ZQuery.fromRequest(GetPostComments(postId))(PostCommentsDS).map {
       _.map { comment =>
-        CommentView(comment.name, comment.email, comment.body)
+        CommentView(comment.postId, comment.id, comment.name, comment.email, comment.body)
       }
     }

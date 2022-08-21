@@ -60,7 +60,7 @@ object Commands:
         Client
           .getPost(postId)
           .onComplete {
-            case Success(Right(Some(post))) => updateVars(header = post.title, post = Some(post))
+            case Success(Right(Some(post))) => postVar.set(Some(post))
             case Success(Right(None))       => updateVars(header = "No post returned")
             case Success(Left(error))       => updateVars(header = error.getMessage)
             case Failure(error)             => updateVars(header = error.getMessage)
