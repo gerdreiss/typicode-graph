@@ -23,8 +23,10 @@ object CommentView:
     }
 
   def getPostComments(postId: PostId): ZQ[List[CommentView]] =
-    ZQuery.fromRequest(GetPostComments(postId))(PostCommentsDS).map {
-      _.map { comment =>
-        CommentView(comment.postId, comment.id, comment.name, comment.email, comment.body)
+    ZQuery
+      .fromRequest(GetPostComments(postId))(PostCommentsDS)
+      .map {
+        _.map { comment =>
+          CommentView(comment.postId, comment.id, comment.name, comment.email, comment.body)
+        }
       }
-    }

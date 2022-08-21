@@ -22,8 +22,10 @@ object TodoView:
     }
 
   def getUserTodos(userId: UserId): ZQ[List[TodoView]] =
-    ZQuery.fromRequest(GetUserTodos(userId))(TodosDS).map {
-      _.map { todo =>
-        TodoView(todo.id, todo.userId, todo.title, todo.completed)
+    ZQuery
+      .fromRequest(GetUserTodos(userId))(TodosDS)
+      .map {
+        _.map { todo =>
+          TodoView(todo.id, todo.userId, todo.title, todo.completed)
+        }
       }
-    }

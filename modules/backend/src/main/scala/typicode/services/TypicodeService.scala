@@ -6,7 +6,6 @@ import sttp.model.{ StatusCode, Uri }
 import zio.*
 import zio.json.JsonDecoder
 
-import config.*
 import domain.*
 
 trait TypicodeService:
@@ -34,23 +33,14 @@ object TypicodeService:
   val live: ZLayer[TypicodeConfig & SttpBackend[Task, Any], Any, TypicodeService] =
     ZLayer.fromFunction(TypicodeServiceLive.apply)
 
-case class TypicodeServiceLive(
-    config: TypicodeConfig,
-    backend: SttpBackend[Task, Any],
-) extends TypicodeService:
+case class TypicodeServiceLive(config: TypicodeConfig, backend: SttpBackend[Task, Any]) extends TypicodeService:
+
   private val commonHeaders = Map("Content-Type" -> "application/json")
 
-  private def getUsersURI: Uri                         = uri"${config.baseUrl}/users"
-  private def getUserURI(userId: UserId): Uri          = uri"${getUsersURI}/$userId"
-  private def getUserTodosURI(userId: UserId): Uri     = uri"${getUserURI(userId)}/todos"
-  private def getUserPostsURI(userId: UserId): Uri     = uri"${getUserURI(userId)}/posts"
-  private def getUserAlbumsURI(userId: UserId): Uri    = uri"${getUserURI(userId)}/albums"
-  private def getPostURI(postId: PostId): Uri          = uri"${config.baseUrl}/posts/$postId"
-  private def getPostCommentsURI(postId: PostId): Uri  = uri"${config.baseUrl}/posts/$postId/comments"
-  private def getAlbumURI(albumId: AlbumId): Uri       = uri"${config.baseUrl}/albums/$albumId"
-  private def getAlbumPhotosURI(albumId: AlbumId): Uri = uri"${config.baseUrl}/albums/$albumId/photos"
-
-  private def createRequest[T](uri: Uri, lastModified: Option[String] = None)(using
+  private def createRequest[T](
+      uri: Uri,
+      lastModified: Option[String] = None,
+  )(using
       D: JsonDecoder[T]
   ): Request[Either[String, T], Any] =
     basicRequest
@@ -70,6 +60,16 @@ case class TypicodeServiceLive(
                     case code          =>
                       ZIO.fail(new Exception(s"Unexpected response code: $code"))
     yield result
+
+  private def getUsersURI: Uri                         = uri"${config.baseUrl}/users"
+  private def getUserURI(userId: UserId): Uri          = uri"$getUsersURI/$userId"
+  private def getUserTodosURI(userId: UserId): Uri     = uri"${getUserURI(userId)}/todos"
+  private def getUserPostsURI(userId: UserId): Uri     = uri"${getUserURI(userId)}/posts"
+  private def getUserAlbumsURI(userId: UserId): Uri    = uri"${getUserURI(userId)}/albums"
+  private def getPostURI(postId: PostId): Uri          = uri"${config.baseUrl}/posts/$postId"
+  private def getPostCommentsURI(postId: PostId): Uri  = uri"${config.baseUrl}/posts/$postId/comments"
+  private def getAlbumURI(albumId: AlbumId): Uri       = uri"${config.baseUrl}/albums/$albumId"
+  private def getAlbumPhotosURI(albumId: AlbumId): Uri = uri"${config.baseUrl}/albums/$albumId/photos"
 
   def getUsers: Task[List[User]] =
     getObject[List[User]](getUsersURI)

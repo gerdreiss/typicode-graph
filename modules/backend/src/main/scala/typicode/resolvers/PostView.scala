@@ -28,10 +28,14 @@ object PostView:
     }
 
   def getUserPosts(userId: UserId): ZQ[List[PostView]] =
-    ZQuery.fromRequest(GetUserPosts(userId))(PostsDS).map(_.map(mapPost))
+    ZQuery
+      .fromRequest(GetUserPosts(userId))(PostsDS)
+      .map(_.map(mapPost))
 
   def getPost(postId: PostId): ZQ[PostView] =
-    ZQuery.fromRequest(GetPost(postId))(PostDS).map(mapPost)
+    ZQuery
+      .fromRequest(GetPost(postId))(PostDS)
+      .map(mapPost)
 
   private def mapPost(post: Post) =
     PostView(

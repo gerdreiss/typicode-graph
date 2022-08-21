@@ -1,8 +1,6 @@
 package typicode
 
 import com.raquo.laminar.api.L.*
-import com.raquo.laminar.nodes.ReactiveHtmlElement
-import org.scalajs.dom.HTMLElement
 
 import domain.*
 

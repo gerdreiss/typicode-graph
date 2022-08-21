@@ -38,18 +38,18 @@ object Views:
           cls := "ui grid",
           div(
             cls := "row",
-            div(cls := "fourteen wide column", child <-- headerVar.signal.map(p(_))),
+            div(cls := "fourteen wide column", child <-- headerVar.signal.map(h1(_))),
             child <-- userVar.signal.combineWith(postVar.signal)
               .map {
-                case (maybeUser, None) => renderUserHeader(maybeUser)
-                case (_, maybePost)    => renderPostHeader(maybePost)
+                case (maybeUser, None) => renderBackToUsers(maybeUser)
+                case (_, maybePost)    => renderBackToUser(maybePost)
               },
           ),
         ),
       ),
     )
 
-  def renderUserHeader(maybeUser: Option[User]): ReactiveHtmlElement[HTMLElement] =
+  def renderBackToUsers(maybeUser: Option[User]): ReactiveHtmlElement[HTMLElement] =
     maybeUser.fold(div()) { _ =>
       div(
         cls := "two wide column",
@@ -62,7 +62,7 @@ object Views:
       )
     }
 
-  def renderPostHeader(maybePost: Option[Post]): ReactiveHtmlElement[HTMLElement] =
+  def renderBackToUser(maybePost: Option[Post]): ReactiveHtmlElement[HTMLElement] =
     maybePost.fold(div()) { post =>
       div(
         cls := "two wide column",
@@ -174,7 +174,7 @@ object Views:
   def renderTodos(userId: UserId): ReactiveHtmlElement[HTMLElement] =
     div(
       cls := "five wide column",
-      h3(cls := "ui header", div(cls := "content", i(cls := "list icon"), p("To-Do List"))),
+      h3(cls := "ui header", div(cls := "content", i(cls := "list icon"), "To-Do List")),
       div(
         cls := "ui relaxed divided list",
         children <-- userTodosVar.signal.map(renderTodoList),
@@ -197,7 +197,7 @@ object Views:
   def renderPosts(userId: UserId): ReactiveHtmlElement[HTMLElement] =
     div(
       cls := "five wide column",
-      h3(cls := "ui header", div(cls := "content", i(cls := "edit icon"), p("Posts"))),
+      h3(cls := "ui header", div(cls := "content", i(cls := "edit icon"), "Posts")),
       div(
         cls := "ui relaxed divided list",
         children <-- userPostsVar.signal.map(renderPostList),
@@ -221,7 +221,7 @@ object Views:
               onClick.mapTo(post.id) --> commandObserver.contramap(postId => Command.ShowPost(postId)),
             ),
           ),
-          div(cls := "description", p(post.body)),
+          div(cls := "description", post.body),
         ),
       )
     }

@@ -21,8 +21,10 @@ object PhotoView:
     }
 
   def getAlbumPhotos(albumId: AlbumId): ZQ[List[PhotoView]] =
-    ZQuery.fromRequest(GetAlbumPhotos(albumId))(AlbumPhotosDS).map {
-      _.map { photo =>
-        PhotoView(photo.title, photo.url, photo.thumbnailUrl)
+    ZQuery
+      .fromRequest(GetAlbumPhotos(albumId))(AlbumPhotosDS)
+      .map {
+        _.map { photo =>
+          PhotoView(photo.title, photo.url, photo.thumbnailUrl)
+        }
       }
-    }

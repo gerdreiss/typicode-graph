@@ -25,18 +25,23 @@ object AlbumView:
     }
 
   def getUserAlbums(userId: UserId): ZQ[List[AlbumView]] =
-    ZQuery.fromRequest(GetUserAlbums(userId))(AlbumsDS).map {
-      _.map(album =>
+    ZQuery
+      .fromRequest(GetUserAlbums(userId))(AlbumsDS)
+      .map {
+        _.map(album =>
+          AlbumView(
+            album.title,
+            PhotoView.getAlbumPhotos(album.id),
+          )
+        )
+      }
+
+  def getAlbum(albumId: AlbumId): ZQ[AlbumView] =
+    ZQuery
+      .fromRequest(GetAlbum(albumId))(AlbumDS)
+      .map { album =>
         AlbumView(
           album.title,
           PhotoView.getAlbumPhotos(album.id),
         )
-      )
-    }
-  def getAlbum(albumId: AlbumId): ZQ[AlbumView]          =
-    ZQuery.fromRequest(GetAlbum(albumId))(AlbumDS).map { album =>
-      AlbumView(
-        album.title,
-        PhotoView.getAlbumPhotos(album.id),
-      )
-    }
+      }
