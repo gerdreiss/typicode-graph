@@ -13,9 +13,9 @@ trait TypicodeService:
   def getUser(userId: UserId): Task[User]
   def getUserTodos(userId: UserId): Task[List[Todo]]
   def getUserPosts(userId: UserId): Task[List[Post]]
+  def getUserAlbums(userId: UserId): Task[List[Album]]
   def getPost(postId: PostId): Task[Post]
   def getPostComments(postId: PostId): Task[List[Comment]]
-  def getUserAlbums(userId: UserId): Task[List[Album]]
   def getAlbum(albumId: AlbumId): Task[Album]
   def getAlbumPhotos(albumId: AlbumId): Task[List[Photo]]
 
@@ -24,10 +24,10 @@ object TypicodeService:
   def getUser(userId: UserId)          = ZIO.serviceWithZIO[TypicodeService](_.getUser(userId))
   def getUserTodos(userId: UserId)     = ZIO.serviceWithZIO[TypicodeService](_.getUserTodos(userId))
   def getUserPosts(userId: UserId)     = ZIO.serviceWithZIO[TypicodeService](_.getUserPosts(userId))
+  def getUserAlbums(userId: UserId)    = ZIO.serviceWithZIO[TypicodeService](_.getUserAlbums(userId))
   def getPost(postId: PostId)          = ZIO.serviceWithZIO[TypicodeService](_.getPost(postId))
   def getPostComments(postId: PostId)  = ZIO.serviceWithZIO[TypicodeService](_.getPostComments(postId))
   def getAlbum(albumId: AlbumId)       = ZIO.serviceWithZIO[TypicodeService](_.getAlbum(albumId))
-  def getUserAlbums(userId: UserId)    = ZIO.serviceWithZIO[TypicodeService](_.getUserAlbums(userId))
   def getAlbumPhotos(albumId: AlbumId) = ZIO.serviceWithZIO[TypicodeService](_.getAlbumPhotos(albumId))
 
   val live: ZLayer[TypicodeConfig & SttpBackend[Task, Any], Any, TypicodeService] =
@@ -83,14 +83,14 @@ case class TypicodeServiceLive(config: TypicodeConfig, backend: SttpBackend[Task
   def getUserPosts(userId: UserId): Task[List[Post]] =
     getObject[List[Post]](getUserPostsURI(userId))
 
+  def getUserAlbums(userId: UserId): Task[List[Album]] =
+    getObject[List[Album]](getUserAlbumsURI(userId))
+
   def getPost(postId: PostId): Task[Post] =
     getObject[Post](getPostURI(postId))
 
   def getPostComments(postId: PostId): Task[List[Comment]] =
     getObject[List[Comment]](getPostCommentsURI(postId))
-
-  def getUserAlbums(userId: UserId): Task[List[Album]] =
-    getObject[List[Album]](getUserAlbumsURI(userId))
 
   def getAlbum(albumId: AlbumId): Task[Album] =
     getObject[Album](getAlbumURI(albumId))

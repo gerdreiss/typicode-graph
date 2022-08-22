@@ -25,7 +25,7 @@ case class Queries(
 )
 
 object Queries:
-  val make: Queries = Queries(
+  lazy val make: Queries = Queries(
     UserView.getUsers,
     user => UserView.getUser(user.userId),
     userTodos => TodoView.getUserTodos(userTodos.userId),
