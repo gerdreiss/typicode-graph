@@ -1,9 +1,9 @@
 package typicode
+package resolvers
 
 import caliban.schema.Annotations.GQLDescription
 
 import domain.*
-import resolvers.*
 
 case class UserIdArgs(userId: UserId)
 case class PostIdArgs(postId: PostId)

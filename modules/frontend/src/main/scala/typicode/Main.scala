@@ -7,5 +7,5 @@ object Main:
   def main(args: Array[String]): Unit =
     render(
       document.querySelector("#app"),
-      Views.renderApp,
+      UI.renderApp,
     )

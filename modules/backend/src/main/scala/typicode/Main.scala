@@ -10,6 +10,7 @@ import zhttp.service.Server
 import zio.*
 import zio.stream.ZStream
 
+import resolvers.*
 import services.*
 
 import scala.language.postfixOps

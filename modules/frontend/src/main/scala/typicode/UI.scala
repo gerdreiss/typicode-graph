@@ -8,7 +8,7 @@ import Commands.*
 import Vars.*
 import domain.*
 
-object Views:
+object UI:
 
   def renderApp: ReactiveHtmlElement[HTMLElement] =
     div(
