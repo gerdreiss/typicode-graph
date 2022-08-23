@@ -10,7 +10,7 @@ This is an experimental project to explore [GraphQL](https://graphql.org/) and [
 
 ### Run project
 
-Open conmmand line and enter
+Open command line and enter
 ```console
 sbt backend/run
 ```
