@@ -44,7 +44,7 @@ object UI:
         ),
       ),
       div(
-        cls := "five wide column",
+        cls := "six wide column",
         child <-- usersVar.signal
           .combineWith(userVar.signal)
           .combineWith(postVar.signal)
@@ -59,13 +59,13 @@ object UI:
   def renderUserSearch: ReactiveHtmlElement[HTMLElement] =
     div(
       cls := "content",
-      styleAttr := "margin-top: 1em; text-align: right",
+      styleAttr := "margin-top: 1em",
       div(
-        cls := "ui left icon large input",
+        cls := "ui fluid left icon large input",
         i(cls := "users icon"),
         input(
           onMountFocus,
-          placeholder := "Enter your name here",
+          placeholder := "Enter name here",
           onInput.mapToValue --> nameFilterVar,
         ),
       ),
@@ -108,7 +108,7 @@ object UI:
           div(cls := "four wide column", renderClickableUserCard(user)),
           div(cls := "three wide column", renderAddressCard(user.address)),
           div(cls := "three wide column", renderGeoCard(user.address.geo)),
-          div(cls := "six wide column", renderCompanyCard(user.company)),
+          div(cls := "six wide column", renderCompanyCard(user.company, fluid = true)),
         )
       }
 
@@ -184,9 +184,9 @@ object UI:
       ),
     )
 
-  def renderCompanyCard(company: Company): ReactiveHtmlElement[HTMLElement] =
+  def renderCompanyCard(company: Company, fluid: Boolean = false): ReactiveHtmlElement[HTMLElement] =
     div(
-      cls := "ui card",
+      cls := (if fluid then "ui fluid card" else "ui card"),
       div(
         cls := "content",
         div(cls := "header", i(cls := "building icon"), "Company"),
@@ -222,7 +222,7 @@ object UI:
 
   def renderPosts(userId: UserId): ReactiveHtmlElement[HTMLElement] =
     div(
-      cls := "five wide column",
+      cls := "six wide column",
       h3(cls := "ui header", div(cls := "content", i(cls := "edit icon"), "Posts")),
       div(
         cls := "ui relaxed divided list",
