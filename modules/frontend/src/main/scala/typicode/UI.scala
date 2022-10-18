@@ -15,7 +15,8 @@ object UI:
       cls := "ui raised very padded container segment",
       renderHeader,
       div(cls := "ui divider"),
-      children <-- usersVar.signal
+      children <-- usersVar
+        .signal
         .combineWith(nameFilterVar.signal)
         .combineWith(userVar.signal)
         .combineWith(postVar.signal)
@@ -45,7 +46,8 @@ object UI:
       ),
       div(
         cls := "six wide column",
-        child <-- usersVar.signal
+        child <-- usersVar
+          .signal
           .combineWith(userVar.signal)
           .combineWith(postVar.signal)
           .map {
@@ -58,11 +60,11 @@ object UI:
 
   def renderUserSearch: ReactiveHtmlElement[HTMLElement] =
     div(
-      cls := "content",
+      cls       := "content",
       styleAttr := "margin-top: 1em",
       div(
         cls := "ui fluid left icon large input",
-        i(cls := "users icon"),
+        i(cls         := "users icon"),
         input(
           onMountFocus,
           placeholder := "Enter name here",
@@ -74,7 +76,7 @@ object UI:
   def renderBackToUsers(maybeUser: Option[User]): ReactiveHtmlElement[HTMLElement] =
     maybeUser.fold(div()) { _ =>
       div(
-        cls := "content",
+        cls       := "content",
         styleAttr := "margin-top: 2em; text-align: right",
         button(
           cls := "ui labeled button",
@@ -88,7 +90,7 @@ object UI:
   def renderBackToUser(maybePost: Option[Post]): ReactiveHtmlElement[HTMLElement] =
     maybePost.fold(div()) { post =>
       div(
-        cls := "content",
+        cls       := "content",
         styleAttr := "margin-top: 2em; text-align: right",
         button(
           cls := "ui labeled button",
@@ -118,7 +120,7 @@ object UI:
       div(
         cls := "content",
         div(
-          cls := "header",
+          cls   := "header",
           a(user.name),
           onClick.mapTo(user.id) --> commandObserver.contramap[Int] { userId =>
             Command.ShowUser(userId)
@@ -202,7 +204,7 @@ object UI:
       cls := "five wide column",
       h3(cls := "ui header", div(cls := "content", i(cls := "list icon"), "To-Do List")),
       div(
-        cls := "ui relaxed divided list",
+        cls  := "ui relaxed divided list",
         children <-- userTodosVar.signal.map(renderTodoList),
         onMountCallback { _ =>
           commandObserver.onNext(Command.ShowUserTodos(userId))
@@ -215,7 +217,7 @@ object UI:
       div(
         cls := "item",
         if todo.completed then i(cls := "check icon")
-        else i(cls := "square outline icon"),
+        else i(cls                   := "square outline icon"),
         div(cls := "content", div(cls := "description", todo.title)),
       )
     }
@@ -225,7 +227,7 @@ object UI:
       cls := "six wide column",
       h3(cls := "ui header", div(cls := "content", i(cls := "edit icon"), "Posts")),
       div(
-        cls := "ui relaxed divided list",
+        cls  := "ui relaxed divided list",
         children <-- userPostsVar.signal.map(renderPostList),
         onMountCallback { _ =>
           commandObserver.onNext(Command.ShowUserPosts(userId))
@@ -241,7 +243,7 @@ object UI:
         div(
           cls := "content",
           a(
-            cls := "header",
+            cls   := "header",
             a(
               post.title,
               onClick.mapTo(post.id) --> commandObserver.contramap(postId => Command.ShowPost(postId)),
@@ -258,7 +260,7 @@ object UI:
       div(
         cls := "sixteen wide column",
         div(
-          cls := "ui card",
+          cls       := "ui card",
           styleAttr := "width: 100%",
           div(
             cls := "content",
@@ -267,7 +269,7 @@ object UI:
           ),
         ),
         div(
-          cls := "ui comments",
+          cls       := "ui comments",
           h3(cls := "ui dividing header", "Comments"),
           children <-- postCommentsVar.signal.map(renderCommentList),
           onMountCallback { _ =>
@@ -284,7 +286,7 @@ object UI:
         i(cls := "large comment top aligned icon avatar"),
         div(
           cls := "content",
-          a(cls := "author", comment.name),
+          a(cls   := "author", comment.name),
           div(cls := "metadata", i(cls := "envelope icon"), comment.email),
           div(cls := "text", comment.body),
         ),
