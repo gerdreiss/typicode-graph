@@ -4,7 +4,7 @@ import caliban.*
 import caliban.wrappers.Wrappers.*
 import sttp.client3.httpclient.zio.HttpClientZioBackend
 import zhttp.http.middleware.Cors.CorsConfig
-import zhttp.http.Middleware.cors
+import zhttp.http.Middleware
 import zhttp.http.*
 import zhttp.service.Server
 import zio.*
@@ -35,7 +35,7 @@ object Main extends ZIOAppDefault:
       case _ -> !! / "api" / "graphql" => ZHttpAdapter.makeHttpService(interpreter)
       case _ -> !! / "ws" / "graphql"  => ZHttpAdapter.makeWebSocketService(interpreter)
       case _ -> !! / "graphiql"        => Http.fromStream(ZStream.fromResource("graphiql.html"))
-    } @@ cors(
+    } @@ Middleware.cors(
       CorsConfig(
         allowedOrigins = _ => true,
         allowedMethods = Some(Set(Method.OPTIONS, Method.POST)),
