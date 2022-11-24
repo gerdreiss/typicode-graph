@@ -56,7 +56,5 @@ python -m SimpleHTTPServer
 python3 -m http.server
 ```
 
-```
 
 Open http://localhost:8080/modules/frontend/index-dev.html in the browser
-```
