@@ -10,7 +10,7 @@ object Dependencies {
     val `zio-config`      = "3.0.2"
     val `zio-query`       = "0.3.2"
     val `zio-json`        = "0.3.0"
-    val `scala-java-time` = "2.4.0"
+    val `scala-java-time` = "2.5.0"
   }
   object Libraries {
     val `scala-java-time`         = Def.setting("io.github.cquiroz" %%% "scala-java-time" % V.`scala-java-time`)
