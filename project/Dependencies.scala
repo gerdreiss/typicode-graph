@@ -8,7 +8,7 @@ object Dependencies {
     val sttp3             = "3.8.5"
     val zio               = "2.0.4"
     val `zio-config`      = "3.0.2"
-    val `zio-query`       = "0.3.2"
+    val `zio-query`       = "0.3.3"
     val `zio-json`        = "0.4.2"
     val `scala-java-time` = "2.5.0"
   }
