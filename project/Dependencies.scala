@@ -4,10 +4,10 @@ import sbt._
 object Dependencies {
   object V         {
     val laminar           = "0.14.5"
-    val caliban           = "2.0.1"
-    val sttp3             = "3.8.5"
+    val caliban           = "2.0.2"
+    val sttp3             = "3.8.7"
     val zio               = "2.0.5"
-    val `zio-config`      = "3.0.6"
+    val `zio-config`      = "3.0.7"
     val `zio-query`       = "0.3.4"
     val `zio-json`        = "0.4.2"
     val `scala-java-time` = "2.5.0"
