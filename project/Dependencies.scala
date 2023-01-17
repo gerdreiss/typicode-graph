@@ -5,7 +5,7 @@ object Dependencies {
   object V         {
     val laminar           = "0.14.5"
     val caliban           = "2.0.2"
-    val sttp3             = "3.8.7"
+    val sttp3             = "3.8.8"
     val zio               = "2.0.5"
     val `zio-config`      = "3.0.7"
     val `zio-query`       = "0.3.4"
